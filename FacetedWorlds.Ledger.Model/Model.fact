@@ -1,0 +1,39 @@
+namespace FacetedWorlds.Ledger.Model;
+
+fact Identity {
+key:
+    string anonymousId;
+
+query:
+	Share *activeShares {
+		Share s : s.identity = this
+			where s.isActive
+	}
+}
+
+fact Share {
+key:
+	unique;
+	publish Identity identity;
+	Company company;
+
+query:
+	bool isActive {
+		not exists ShareRevoke r : r.share = this
+	}
+}
+
+fact ShareRevoke {
+key:
+	Share share;
+}
+
+fact Company {
+key:
+	unique;
+
+mutable:
+	string name;
+
+query:
+}

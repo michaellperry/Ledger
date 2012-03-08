@@ -3,7 +3,10 @@
            xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml" 
            xmlns:controls="clr-namespace:System.Windows.Controls;assembly=System.Windows.Controls"
            Width="400" Height="300" 
-           Title="New Account">
+           Title="New Account" xmlns:my="clr-namespace:Itzben;assembly=Itzben">
+    <controls:ChildWindow.Resources>
+        <my:EnumEqualsConverter x:Key="EnumEqualsConverter" />
+    </controls:ChildWindow.Resources>
     <Grid x:Name="LayoutRoot" Margin="2">
         <Grid.RowDefinitions>
             <RowDefinition />
@@ -24,10 +27,10 @@
         	<TextBox Grid.Column="1" Margin="8" TextWrapping="Wrap" Text="{Binding Name, Mode=TwoWay}" VerticalAlignment="Center"/>
         	<TextBlock HorizontalAlignment="Left" Margin="8" Grid.Row="1" TextWrapping="Wrap" Text="Type:" VerticalAlignment="Top"/>
         	<StackPanel Grid.Column="1" Grid.Row="1">
-        		<RadioButton Content="Asset" Margin="8,8,8,4" IsChecked="{Binding Type, Mode=TwoWay}"/>
-        		<RadioButton Content="Liability" Margin="8,4"/>
-        		<RadioButton Content="Income" Margin="8,4"/>
-        		<RadioButton Content="Expense" Margin="8,4,8,8"/>
+        		<RadioButton Content="Asset" Margin="8,8,8,4" IsChecked="{Binding Mode=TwoWay, Path=Type, Converter={StaticResource EnumEqualsConverter}, ConverterParameter=Asset}"/>
+                <RadioButton Content="Liability" Margin="8,4" IsChecked="{Binding Mode=TwoWay, Path=Type, Converter={StaticResource EnumEqualsConverter}, ConverterParameter=Liability}"/>
+                <RadioButton Content="Income" Margin="8,4" IsChecked="{Binding Mode=TwoWay, Path=Type, Converter={StaticResource EnumEqualsConverter}, ConverterParameter=Income}"/>
+                <RadioButton Content="Expense" Margin="8,4,8,8" IsChecked="{Binding Mode=TwoWay, Path=Type, Converter={StaticResource EnumEqualsConverter}, ConverterParameter=Expense}"/>
         	</StackPanel>
         </Grid>
 

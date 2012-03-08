@@ -1,8 +1,9 @@
-﻿<UserControl x:Class="FacetedWorlds.Ledger.Views.CompanyView"
+﻿<UserControl
     xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
     xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+    xmlns:sdk="http://schemas.microsoft.com/winfx/2006/xaml/presentation/sdk" x:Class="FacetedWorlds.Ledger.Views.CompanyView"
     mc:Ignorable="d"
     d:DesignHeight="520.802" d:DesignWidth="808">
     
@@ -11,12 +12,30 @@
     		<RowDefinition Height="Auto"/>
     		<RowDefinition/>
     	</Grid.RowDefinitions>
-    	<TextBox HorizontalAlignment="Left" Margin="12" TextWrapping="Wrap" Text="{Binding Name, Mode=TwoWay}" VerticalAlignment="Top" FontSize="18.667"/>
+    	<Grid>
+    		<Grid.ColumnDefinitions>
+    			<ColumnDefinition/>
+    			<ColumnDefinition Width="Auto"/>
+    		</Grid.ColumnDefinitions>
+    		<TextBox Margin="12" TextWrapping="Wrap" Text="{Binding Name, Mode=TwoWay}" VerticalAlignment="Center" FontSize="18.667" Height="36"/>
+    		<sdk:AutoCompleteBox HorizontalAlignment="Left" VerticalAlignment="Center" Grid.Column="1" Margin="8" Width="75" Text="{Binding Year}"/>
+    	</Grid>
     	<Grid Grid.Row="1">
     		<Grid.ColumnDefinitions>
     			<ColumnDefinition Width="49*"/>
     			<ColumnDefinition Width="153*"/>
     		</Grid.ColumnDefinitions>
+    		<Grid>
+    			<Grid.RowDefinitions>
+    				<RowDefinition/>
+    				<RowDefinition Height="Auto"/>
+    			</Grid.RowDefinitions>
+    			<ListBox Margin="8"/>
+    			<StackPanel Grid.Row="1" Orientation="Horizontal">
+    				<Button Content="New" HorizontalAlignment="Left" Width="75" VerticalAlignment="Center" Margin="8" Click="NewAccount_Click"/>
+    				<Button Content="Delete" Width="75" VerticalAlignment="Center" Margin="8" Click="DeleteAccount_Click"/>
+    			</StackPanel>
+    		</Grid>
     	</Grid>
 
     </Grid>

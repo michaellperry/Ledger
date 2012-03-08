@@ -12,22 +12,22 @@ using System.Windows.Shapes;
 
 namespace FacetedWorlds.Ledger.Views
 {
-    public partial class CompanyView : UserControl
+    public partial class NewAccountWindow : ChildWindow
     {
-        public CompanyView()
+        public NewAccountWindow()
         {
             InitializeComponent();
         }
 
-        private void NewAccount_Click(object sender, RoutedEventArgs e)
+        private void OKButton_Click(object sender, RoutedEventArgs e)
         {
-            NewAccountWindow window = new NewAccountWindow();
-            window.Show();
+            this.DialogResult = true;
         }
 
-        private void DeleteAccount_Click(object sender, RoutedEventArgs e)
+        private void CancelButton_Click(object sender, RoutedEventArgs e)
         {
-            // TODO: Add event handler implementation here.
+            this.DialogResult = false;
         }
     }
 }
+

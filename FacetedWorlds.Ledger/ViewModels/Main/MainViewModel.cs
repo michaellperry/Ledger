@@ -55,7 +55,7 @@ namespace FacetedWorlds.Ledger.ViewModels.Main
             {
                 return _navigationModel.SelectedShare == null
                     ? null
-                    : new CompanyViewModel(_navigationModel.SelectedShare);
+                    : new CompanyViewModel(_navigationModel.SelectedShare, _navigationModel);
             }
         }
 

@@ -19,6 +19,9 @@ namespace FacetedWorlds.Ledger.ViewModels
             if (!DesignerProperties.IsInDesignTool)
             {
                 _synchronizationService.Initialize();
+                navigationModel.SelectedShare = _synchronizationService.Identity.ActiveShares
+                    .OrderBy(share => share.Company.Name.Value)
+                    .FirstOrDefault();
                 _main = new Main.MainViewModel(_synchronizationService.Community, navigationModel, _synchronizationService);
             }
         }

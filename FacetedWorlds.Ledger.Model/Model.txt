@@ -1,0 +1,22 @@
+digraph "FacetedWorlds.Ledger.Model"
+{
+    rankdir=BT
+    Share -> Identity [color="red"]
+    Share -> Company
+    ShareRevoke -> Share
+    Company__name -> Company [color="red"]
+    Company__name -> Company__name [label="  *"]
+    Year -> Company [color="red"]
+    Account -> Company [color="red"]
+    Account__name -> Account
+    Account__name -> Account__name [label="  *"]
+    Book -> Account
+    Book -> Year
+    Entry -> Book
+    Entry -> Book
+    Entry__id -> Entry
+    Entry__id -> Entry__id [label="  *"]
+    Entry__description -> Entry
+    Entry__description -> Entry__description [label="  *"]
+    EntryVoid -> Entry
+}

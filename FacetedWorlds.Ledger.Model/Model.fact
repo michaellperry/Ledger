@@ -33,7 +33,65 @@ key:
 	unique;
 
 mutable:
-	string name;
+	publish string name;
 
 query:
+}
+
+fact Year {
+key:
+	publish Company company;
+	int calendarYear;
+}
+
+fact Account {
+key:
+	unique;
+	publish Company company;
+	int type;
+
+mutable:
+	string name;
+}
+
+fact Book {
+key:
+	Account account;
+	Year year;
+
+query:
+	Entry* credits {
+		Entry e : e.credit = this
+			where not e.isVoided
+	}
+
+	Entry* debits {
+		Entry e : e.debit = this
+			where not e.isVoided
+	}
+}
+
+fact Entry {
+key:
+	unique;
+	Book credit;
+	Book debit;
+	date entryDate;
+	float amount;
+	time created;
+
+mutable:
+	string id;
+	string description;
+
+query:
+	bool isVoided {
+		exists EntryVoid v : v.entry = this
+	}
+}
+
+fact EntryVoid {
+key:
+	Entry entry;
+	time voided;
 }

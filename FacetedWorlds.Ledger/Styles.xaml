@@ -5,5 +5,7 @@
 	<SolidColorBrush x:Key="LiabilityBrush" Color="#FFAE4846"/>
 	<SolidColorBrush x:Key="IncomeBrush" Color="#FF4571A6"/>
 	<SolidColorBrush x:Key="ExpenseBrush" Color="#FFD07E3B"/>
+	<SolidColorBrush x:Key="HeaderBorderBrush" Color="#FF637B8F"/>
+	<SolidColorBrush x:Key="HeaderBackgroundBrush" Color="#FFBABEC1"/>
 	<!-- Resource dictionary entries should be defined here. -->
 </ResourceDictionary>

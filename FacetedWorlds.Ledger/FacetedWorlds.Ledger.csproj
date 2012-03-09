@@ -101,11 +101,14 @@
     <Compile Include="Models\AccountType.cs" />
     <Compile Include="Models\NavigationModel.cs" />
     <Compile Include="Models\NewAccountModel.cs" />
+    <Compile Include="Models\NewEntryModel.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="SynchronizationService.cs" />
     <Compile Include="ViewModels\AccountHeaderViewModel.cs" />
+    <Compile Include="ViewModels\BookViewModel.cs" />
     <Compile Include="ViewModels\CompanyHeaderViewModel.cs" />
     <Compile Include="ViewModels\CompanyViewModel.cs" />
+    <Compile Include="ViewModels\EntryViewModel.cs" />
     <Compile Include="ViewModels\MainViewModel.cs" />
     <Compile Include="ViewModels\ViewModelLocator.cs" />
     <Compile Include="Views\CompanyView.xaml.cs">

@@ -1,12 +1,80 @@
-﻿<UserControl x:Class="FacetedWorlds.Ledger.Views.LedgerControl"
+﻿<UserControl
     xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
     xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+    xmlns:Converters="clr-namespace:FacetedWorlds.Ledger.Converters" xmlns:sdk="http://schemas.microsoft.com/winfx/2006/xaml/presentation/sdk" x:Class="FacetedWorlds.Ledger.Views.LedgerControl"
     mc:Ignorable="d"
-    d:DesignHeight="300" d:DesignWidth="400">
+    d:DesignHeight="341" d:DesignWidth="687">
     
-    <Grid x:Name="LayoutRoot" Background="White">
+	<UserControl.Resources>
+		<Converters:AccountTypeBrushConverter x:Key="AccountTypeBrushConverter"/>
+	</UserControl.Resources>
+    
+	<Grid x:Name="LayoutRoot" Background="White">
+		<Grid.RowDefinitions>
+			<RowDefinition Height="Auto"/>
+			<RowDefinition Height="Auto"/>
+			<RowDefinition/>
+		</Grid.RowDefinitions>
+		<Border BorderThickness="1" Background="{Binding AccountType, Converter={StaticResource AccountTypeBrushConverter}}">
+			<TextBlock TextWrapping="Wrap" Text="{Binding Name}" Foreground="White" FontSize="16" Margin="4"/>
+		</Border>
+		<Grid Grid.Row="1">
+			<Grid.ColumnDefinitions>
+				<ColumnDefinition Width="84"/>
+				<ColumnDefinition Width="89"/>
+				<ColumnDefinition/>
+				<ColumnDefinition Width="129"/>
+				<ColumnDefinition Width="77"/>
+				<ColumnDefinition Width="90"/>
+				<ColumnDefinition Width="108"/>
+			</Grid.ColumnDefinitions>
+			<Border BorderBrush="{StaticResource HeaderBorderBrush}" BorderThickness="1" Background="{StaticResource HeaderBackgroundBrush}" d:LayoutOverrides="Margin">
+				<TextBlock TextWrapping="Wrap" Text="Date" FontSize="13.333" Margin="2"/>
+			</Border>
+			<Border BorderBrush="{StaticResource HeaderBorderBrush}" BorderThickness="1" Background="{StaticResource HeaderBackgroundBrush}" Grid.Column="1" d:LayoutOverrides="Margin">
+				<TextBlock TextWrapping="Wrap" Text="ID" FontSize="13.333" Margin="2"/>
+			</Border>
+			<Border BorderBrush="{StaticResource HeaderBorderBrush}" BorderThickness="1" Background="{StaticResource HeaderBackgroundBrush}" Grid.Column="2" d:LayoutOverrides="Margin">
+				<TextBlock TextWrapping="Wrap" Text="Description" FontSize="13.333" Margin="2"/>
+			</Border>
+			<Border BorderBrush="{StaticResource HeaderBorderBrush}" BorderThickness="1" Background="{StaticResource HeaderBackgroundBrush}" Grid.Column="3" d:LayoutOverrides="Margin">
+				<TextBlock TextWrapping="Wrap" Text="Account" FontSize="13.333" Margin="2"/>
+			</Border>
+			<Border BorderBrush="{StaticResource HeaderBorderBrush}" BorderThickness="1" Background="{StaticResource HeaderBackgroundBrush}" Grid.Column="4" d:LayoutOverrides="Margin">
+				<TextBlock TextWrapping="Wrap" Text="Increase" FontSize="13.333" Margin="2"/>
+			</Border>
+			<Border BorderBrush="{StaticResource HeaderBorderBrush}" BorderThickness="1" Background="{StaticResource HeaderBackgroundBrush}" Grid.Column="5" d:LayoutOverrides="Margin">
+				<TextBlock TextWrapping="Wrap" Text="Decrease" FontSize="13.333" Margin="2"/>
+			</Border>
+			<Border BorderBrush="{StaticResource HeaderBorderBrush}" BorderThickness="1" Background="{StaticResource HeaderBackgroundBrush}" Grid.Column="6" d:LayoutOverrides="Margin">
+				<TextBlock TextWrapping="Wrap" Text="Balance" FontSize="13.333" Margin="2"/>
+			</Border>
+		</Grid>
+		<ScrollViewer Grid.Row="2">
+			<StackPanel Height="271" Width="660">
+				<ItemsControl Height="50"/>
+				<Grid>
+					<Grid.ColumnDefinitions>
+						<ColumnDefinition Width="76"/>
+						<ColumnDefinition Width="92"/>
+						<ColumnDefinition/>
+						<ColumnDefinition Width="128"/>
+						<ColumnDefinition Width="79"/>
+						<ColumnDefinition Width="81"/>
+						<ColumnDefinition Width="92"/>
+					</Grid.ColumnDefinitions>
+					<sdk:DatePicker VerticalAlignment="Center" Margin="2" SelectedDate="{Binding Date}"/>
+					<TextBox Grid.Column="1" TextWrapping="Wrap" Text="{Binding Id, Mode=TwoWay}" VerticalAlignment="Center" Margin="2"/>
+					<TextBox Grid.Column="2" TextWrapping="Wrap" Text="{Binding Description, Mode=TwoWay}" VerticalAlignment="Center" Margin="2"/>
+					<sdk:AutoCompleteBox Grid.Column="3" VerticalAlignment="Center" Margin="2" Text="{Binding AccountName}" ValueMemberBinding="{Binding AccountNameOptions}"/>
+					<TextBox Grid.Column="4" TextWrapping="Wrap" Text="{Binding Increase, Mode=TwoWay}" VerticalAlignment="Center" Margin="2"/>
+					<TextBox Grid.Column="5" TextWrapping="Wrap" Text="{Binding Decrease, Mode=TwoWay}" VerticalAlignment="Center" Margin="2"/>
+				</Grid>
 
-    </Grid>
+			</StackPanel>
+		</ScrollViewer>
+
+	</Grid>
 </UserControl>

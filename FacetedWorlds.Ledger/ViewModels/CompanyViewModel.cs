@@ -56,6 +56,16 @@ namespace FacetedWorlds.Ledger.ViewModels
             }
         }
 
+        public BookViewModel AccountDetail
+        {
+            get
+            {
+                return _navigationModel.SelectedAccount == null
+                    ? null
+                    : new BookViewModel(_navigationModel.SelectedAccount.GetBook(_navigationModel.SelectedYear));
+            }
+        }
+
         public void NewAccount(NewAccountModel newAccount)
         {
             _navigationModel.SelectedAccount = _share.Company.NewAccount(

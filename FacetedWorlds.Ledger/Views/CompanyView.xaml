@@ -1,11 +1,5 @@
-﻿<UserControl
-    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
-    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-    xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
-    xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
-    xmlns:sdk="http://schemas.microsoft.com/winfx/2006/xaml/presentation/sdk" xmlns:Converters="clr-namespace:FacetedWorlds.Ledger.Converters" x:Class="FacetedWorlds.Ledger.Views.CompanyView"
-    mc:Ignorable="d"
-    d:DesignHeight="520.802" d:DesignWidth="808">
+﻿<UserControl xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation" xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml" xmlns:d="http://schemas.microsoft.com/expression/blend/2008" xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" xmlns:sdk="http://schemas.microsoft.com/winfx/2006/xaml/presentation/sdk" xmlns:Converters="clr-namespace:FacetedWorlds.Ledger.Converters" xmlns:local="clr-namespace:FacetedWorlds.Ledger.Views" x:Class="FacetedWorlds.Ledger.Views.CompanyView"
+    d:DesignHeight="520.802" d:DesignWidth="1058.491" mc:Ignorable="d">
 	<UserControl.Resources>
 		<Converters:AccountTypeBrushConverter x:Key="AccountTypeBrushConverter"/>
 		<DataTemplate x:Key="AccountHeaderViewModelTemplate">
@@ -44,6 +38,7 @@
     				<Button Content="Delete" Width="75" VerticalAlignment="Center" Margin="8" Click="DeleteAccount_Click" IsEnabled="{Binding CanDeleteAccount}"/>
     			</StackPanel>
     		</Grid>
+    		<local:LedgerControl Grid.Column="1" DataContext="{Binding AccountDetail}"/>
     	</Grid>
 
     </Grid>

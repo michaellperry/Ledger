@@ -36,6 +36,10 @@ mutable:
 	publish string name;
 
 query:
+	Account* accounts {
+		Account a : a.company = this
+			where not a.isDeleted
+	}
 }
 
 fact Year {
@@ -52,6 +56,16 @@ key:
 
 mutable:
 	string name;
+
+query:
+	bool isDeleted {
+		exists AccountDelete d : d.account = this
+	}
+}
+
+fact AccountDelete {
+key:
+	Account account;
 }
 
 fact Book {

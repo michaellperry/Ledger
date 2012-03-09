@@ -28,5 +28,36 @@ namespace FacetedWorlds.Ledger.ViewModels.Main
             get { return _navigationModel.SelectedYear; }
             set { _navigationModel.SelectedYear = value; }
         }
+
+        public IEnumerable<AccountHeaderViewModel> Accounts
+        {
+            get
+            {
+                return
+                    from account in _share.Company.Accounts
+                    orderby account.Type, account.Name.Value
+                    select new AccountHeaderViewModel(account);
+            }
+        }
+
+        public AccountHeaderViewModel SelectedAccount
+        {
+            get
+            {
+                return _navigationModel.SelectedAccount == null
+                    ? null
+                    : new AccountHeaderViewModel(_navigationModel.SelectedAccount);
+            }
+        }
+
+        public void NewAccount(NewAccountModel newAccount)
+        {
+            _share.Company.NewAccount(newAccount.Name, (int)newAccount.AccountType);
+        }
+
+        public void DeleteAccount()
+        {
+            _navigationModel.SelectedAccount.Delete();
+        }
     }
 }

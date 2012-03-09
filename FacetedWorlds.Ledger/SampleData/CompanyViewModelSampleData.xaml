@@ -1,0 +1,17 @@
+<Main:CompanyViewModel xmlns:Main="clr-namespace:FacetedWorlds.Ledger.ViewModels.Main" Name="Nunc integer per" Year="85">
+	<Main:CompanyViewModel.Accounts>
+		<Main:AccountHeaderViewModel AccountType="Expense" Name="Curabitur vestibulum nam sed class"/>
+		<Main:AccountHeaderViewModel AccountType="Asset" Name="Dis adipiscing parturient est hac"/>
+		<Main:AccountHeaderViewModel AccountType="Expense" Name="Aenean curae"/>
+		<Main:AccountHeaderViewModel AccountType="Expense" Name="Vestibulum donec"/>
+		<Main:AccountHeaderViewModel AccountType="Expense" Name="Phasellus leo mus"/>
+		<Main:AccountHeaderViewModel AccountType="Liability" Name="Etiam nec"/>
+		<Main:AccountHeaderViewModel AccountType="Asset" Name="Fusce mauris consequat aliquam non"/>
+		<Main:AccountHeaderViewModel AccountType="Expense" Name="Cras vestibulum convallis dignissim duis"/>
+		<Main:AccountHeaderViewModel AccountType="Liability" Name="Adipiscing lorem"/>
+		<Main:AccountHeaderViewModel AccountType="Income" Name="Morbi nullam"/>
+	</Main:CompanyViewModel.Accounts>
+	<Main:CompanyViewModel.SelectedAccount>
+		<Main:AccountHeaderViewModel AccountType="Expense" Name="Elementum sed nulla"/>
+	</Main:CompanyViewModel.SelectedAccount>
+</Main:CompanyViewModel>

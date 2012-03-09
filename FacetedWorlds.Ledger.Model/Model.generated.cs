@@ -20,6 +20,7 @@ digraph "FacetedWorlds.Ledger.Model"
     Account -> Company [color="red"]
     Account__name -> Account
     Account__name -> Account__name [label="  *"]
+    AccountDelete -> Account
     Book -> Account
     Book -> Year
     Entry -> Book
@@ -401,6 +402,10 @@ namespace FacetedWorlds.Ledger.Model
             .JoinSuccessors(Company__name.RoleCompany, Condition.WhereIsEmpty(Company__name.QueryIsCurrent)
             )
             ;
+        public static Query QueryAccounts = new Query()
+            .JoinSuccessors(Account.RoleCompany, Condition.WhereIsEmpty(Account.QueryIsDeleted)
+            )
+            ;
 
         // Predicates
 
@@ -413,6 +418,7 @@ namespace FacetedWorlds.Ledger.Model
 
         // Results
         private Result<Company__name> _name;
+        private Result<Account> _accounts;
 
         // Business constructor
         public Company(
@@ -432,6 +438,7 @@ namespace FacetedWorlds.Ledger.Model
         private void InitializeResults()
         {
             _name = new Result<Company__name>(this, QueryName);
+            _accounts = new Result<Account>(this, QueryAccounts);
         }
 
         // Predecessor access
@@ -441,6 +448,10 @@ namespace FacetedWorlds.Ledger.Model
 
 
         // Query result access
+        public IEnumerable<Account> Accounts
+        {
+            get { return _accounts; }
+        }
 
         // Mutable property access
         public Disputable<string> Name
@@ -740,8 +751,12 @@ namespace FacetedWorlds.Ledger.Model
             .JoinSuccessors(Account__name.RoleAccount, Condition.WhereIsEmpty(Account__name.QueryIsCurrent)
             )
             ;
+        public static Query QueryIsDeleted = new Query()
+            .JoinSuccessors(AccountDelete.RoleAccount)
+            ;
 
         // Predicates
+        public static Condition IsDeleted = Condition.WhereIsNotEmpty(QueryIsDeleted);
 
         // Predecessors
         private PredecessorObj<Company> _company;
@@ -925,6 +940,101 @@ namespace FacetedWorlds.Ledger.Model
         {
             get { return _value; }
         }
+
+        // Query result access
+
+        // Mutable property access
+
+    }
+    
+    public partial class AccountDelete : CorrespondenceFact
+    {
+		// Factory
+		internal class CorrespondenceFactFactory : ICorrespondenceFactFactory
+		{
+			private IDictionary<Type, IFieldSerializer> _fieldSerializerByType;
+
+			public CorrespondenceFactFactory(IDictionary<Type, IFieldSerializer> fieldSerializerByType)
+			{
+				_fieldSerializerByType = fieldSerializerByType;
+			}
+
+			public CorrespondenceFact CreateFact(FactMemento memento)
+			{
+				AccountDelete newFact = new AccountDelete(memento);
+
+				// Create a memory stream from the memento data.
+				using (MemoryStream data = new MemoryStream(memento.Data))
+				{
+					using (BinaryReader output = new BinaryReader(data))
+					{
+					}
+				}
+
+				return newFact;
+			}
+
+			public void WriteFactData(CorrespondenceFact obj, BinaryWriter output)
+			{
+				AccountDelete fact = (AccountDelete)obj;
+			}
+		}
+
+		// Type
+		internal static CorrespondenceFactType _correspondenceFactType = new CorrespondenceFactType(
+			"FacetedWorlds.Ledger.Model.AccountDelete", 1);
+
+		protected override CorrespondenceFactType GetCorrespondenceFactType()
+		{
+			return _correspondenceFactType;
+		}
+
+        // Roles
+        public static Role RoleAccount = new Role(new RoleMemento(
+			_correspondenceFactType,
+			"account",
+			new CorrespondenceFactType("FacetedWorlds.Ledger.Model.Account", 1),
+			false));
+
+        // Queries
+
+        // Predicates
+
+        // Predecessors
+        private PredecessorObj<Account> _account;
+
+        // Fields
+
+        // Results
+
+        // Business constructor
+        public AccountDelete(
+            Account account
+            )
+        {
+            InitializeResults();
+            _account = new PredecessorObj<Account>(this, RoleAccount, account);
+        }
+
+        // Hydration constructor
+        private AccountDelete(FactMemento memento)
+        {
+            InitializeResults();
+            _account = new PredecessorObj<Account>(this, RoleAccount, memento);
+        }
+
+        // Result initializer
+        private void InitializeResults()
+        {
+        }
+
+        // Predecessor access
+        public Account Account
+        {
+            get { return _account.Fact; }
+        }
+
+        // Field access
 
         // Query result access
 
@@ -1617,6 +1727,9 @@ namespace FacetedWorlds.Ledger.Model
 			community.AddQuery(
 				Company._correspondenceFactType,
 				Company.QueryName.QueryDefinition);
+			community.AddQuery(
+				Company._correspondenceFactType,
+				Company.QueryAccounts.QueryDefinition);
 			community.AddType(
 				Company__name._correspondenceFactType,
 				new Company__name.CorrespondenceFactFactory(fieldSerializerByType),
@@ -1635,6 +1748,9 @@ namespace FacetedWorlds.Ledger.Model
 			community.AddQuery(
 				Account._correspondenceFactType,
 				Account.QueryName.QueryDefinition);
+			community.AddQuery(
+				Account._correspondenceFactType,
+				Account.QueryIsDeleted.QueryDefinition);
 			community.AddType(
 				Account__name._correspondenceFactType,
 				new Account__name.CorrespondenceFactFactory(fieldSerializerByType),
@@ -1642,6 +1758,10 @@ namespace FacetedWorlds.Ledger.Model
 			community.AddQuery(
 				Account__name._correspondenceFactType,
 				Account__name.QueryIsCurrent.QueryDefinition);
+			community.AddType(
+				AccountDelete._correspondenceFactType,
+				new AccountDelete.CorrespondenceFactFactory(fieldSerializerByType),
+				new FactMetadata(new List<CorrespondenceFactType> { AccountDelete._correspondenceFactType }));
 			community.AddType(
 				Book._correspondenceFactType,
 				new Book.CorrespondenceFactFactory(fieldSerializerByType),

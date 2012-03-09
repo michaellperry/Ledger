@@ -8,6 +8,7 @@ namespace FacetedWorlds.Ledger.Models
     {
         private Independent<Share> _selectedShare = new Independent<Share>();
         private Independent<int> _selectedYear = new Independent<int>(DateTime.Today.Year);
+        private Independent<Account> _selectedAccount = new Independent<Account>();
 
         public Share SelectedShare
         {
@@ -19,6 +20,12 @@ namespace FacetedWorlds.Ledger.Models
         {
             get { return _selectedYear; }
             set { _selectedYear.Value = value; }
+        }
+
+        public Account SelectedAccount
+        {
+            get { return _selectedAccount; }
+            set { _selectedAccount.Value = value; }
         }
     }
 }

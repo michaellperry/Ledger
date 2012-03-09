@@ -9,6 +9,9 @@ using System.Windows.Input;
 using System.Windows.Media;
 using System.Windows.Media.Animation;
 using System.Windows.Shapes;
+using FacetedWorlds.Ledger.Models;
+using UpdateControls.XAML;
+using FacetedWorlds.Ledger.ViewModels.Main;
 
 namespace FacetedWorlds.Ledger.Views
 {
@@ -21,13 +24,34 @@ namespace FacetedWorlds.Ledger.Views
 
         private void NewAccount_Click(object sender, RoutedEventArgs e)
         {
-            NewAccountWindow window = new NewAccountWindow();
+            var window = new NewAccountWindow();
+            var newAccount = new NewAccountModel();
+            newAccount.Name = "<New Account>";
+            window.DataContext = ForView.Wrap(newAccount);
+            window.Closed += NewAccountWindow_Closed;
             window.Show();
+        }
+
+        void NewAccountWindow_Closed(object sender, EventArgs e)
+        {
+            NewAccountWindow window = (NewAccountWindow)sender;
+            if (window.DialogResult ?? false)
+            {
+                var viewModel = ForView.Unwrap<CompanyViewModel>(DataContext);
+                var newAccount = ForView.Unwrap<NewAccountModel>(((FrameworkElement)sender).DataContext);
+                viewModel.NewAccount(newAccount);
+            }
+            window.Closed -= NewAccountWindow_Closed;
         }
 
         private void DeleteAccount_Click(object sender, RoutedEventArgs e)
         {
-            // TODO: Add event handler implementation here.
+            MessageBoxResult result = MessageBox.Show("Delete account n?", "Delete account", MessageBoxButton.OKCancel);
+            if (result == MessageBoxResult.OK)
+            {
+                var viewModel = ForView.Unwrap<CompanyViewModel>(((FrameworkElement)sender).DataContext);
+                viewModel.DeleteAccount();
+            }
         }
     }
 }

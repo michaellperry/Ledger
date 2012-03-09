@@ -1,0 +1,9 @@
+﻿<ResourceDictionary
+	xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation" 
+	xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
+	<SolidColorBrush x:Key="AssetBrush" Color="#FF839E4B"/>
+	<SolidColorBrush x:Key="LiabilityBrush" Color="#FFAE4846"/>
+	<SolidColorBrush x:Key="IncomeBrush" Color="#FF4571A6"/>
+	<SolidColorBrush x:Key="ExpenseBrush" Color="#FFD07E3B"/>
+	<!-- Resource dictionary entries should be defined here. -->
+</ResourceDictionary>

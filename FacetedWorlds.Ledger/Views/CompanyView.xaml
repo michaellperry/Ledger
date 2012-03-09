@@ -3,11 +3,19 @@
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
     xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
-    xmlns:sdk="http://schemas.microsoft.com/winfx/2006/xaml/presentation/sdk" x:Class="FacetedWorlds.Ledger.Views.CompanyView"
+    xmlns:sdk="http://schemas.microsoft.com/winfx/2006/xaml/presentation/sdk" xmlns:Converters="clr-namespace:FacetedWorlds.Ledger.Converters" x:Class="FacetedWorlds.Ledger.Views.CompanyView"
     mc:Ignorable="d"
     d:DesignHeight="520.802" d:DesignWidth="808">
+	<UserControl.Resources>
+		<Converters:AccountTypeBrushConverter x:Key="AccountTypeBrushConverter"/>
+		<DataTemplate x:Key="AccountHeaderViewModelTemplate">
+			<Border Padding="2" Background="{Binding AccountType, Converter={StaticResource AccountTypeBrushConverter}}" Width="165">
+				<TextBlock Text="{Binding Name}" FontSize="13.333" Foreground="White"/>
+			</Border>
+		</DataTemplate>
+	</UserControl.Resources>
     
-    <Grid x:Name="LayoutRoot" Background="White">
+    <Grid x:Name="LayoutRoot" Background="White" d:DataContext="{d:DesignData /SampleData/CompanyViewModelSampleData.xaml}">
     	<Grid.RowDefinitions>
     		<RowDefinition Height="Auto"/>
     		<RowDefinition/>
@@ -30,7 +38,7 @@
     				<RowDefinition/>
     				<RowDefinition Height="Auto"/>
     			</Grid.RowDefinitions>
-    			<ListBox Margin="8"/>
+    			<ListBox Margin="8" ItemTemplate="{StaticResource AccountHeaderViewModelTemplate}" ItemsSource="{Binding Accounts}"/>
     			<StackPanel Grid.Row="1" Orientation="Horizontal">
     				<Button Content="New" HorizontalAlignment="Left" Width="75" VerticalAlignment="Center" Margin="8" Click="NewAccount_Click"/>
     				<Button Content="Delete" Width="75" VerticalAlignment="Center" Margin="8" Click="DeleteAccount_Click"/>

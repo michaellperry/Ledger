@@ -61,6 +61,8 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Account.cs" />
+    <Compile Include="Company.cs" />
     <Compile Include="Identity.cs" />
     <Compile Include="Model.generated.cs">
       <AutoGen>True</AutoGen>

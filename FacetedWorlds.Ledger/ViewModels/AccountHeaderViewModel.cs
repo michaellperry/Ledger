@@ -1,7 +1,7 @@
 using FacetedWorlds.Ledger.Model;
 using FacetedWorlds.Ledger.Models;
 
-namespace FacetedWorlds.Ledger.ViewModels.Main
+namespace FacetedWorlds.Ledger.ViewModels
 {
     public class AccountHeaderViewModel
     {

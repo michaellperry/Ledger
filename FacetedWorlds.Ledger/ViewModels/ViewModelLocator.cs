@@ -10,7 +10,7 @@ namespace FacetedWorlds.Ledger.ViewModels
     {
         private readonly SynchronizationService _synchronizationService;
 
-        private readonly Main.MainViewModel _main;
+        private readonly MainViewModel _main;
 
         public ViewModelLocator()
         {
@@ -22,7 +22,7 @@ namespace FacetedWorlds.Ledger.ViewModels
                 navigationModel.SelectedShare = _synchronizationService.Identity.ActiveShares
                     .OrderBy(share => share.Company.Name.Value)
                     .FirstOrDefault();
-                _main = new Main.MainViewModel(_synchronizationService.Community, navigationModel, _synchronizationService);
+                _main = new MainViewModel(_synchronizationService.Community, navigationModel, _synchronizationService);
             }
         }
 

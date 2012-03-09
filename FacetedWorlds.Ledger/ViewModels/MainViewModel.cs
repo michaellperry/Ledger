@@ -7,7 +7,7 @@ using UpdateControls.Correspondence;
 using UpdateControls.XAML;
 using FacetedWorlds.Ledger.Model;
 
-namespace FacetedWorlds.Ledger.ViewModels.Main
+namespace FacetedWorlds.Ledger.ViewModels
 {
     public class MainViewModel
     {

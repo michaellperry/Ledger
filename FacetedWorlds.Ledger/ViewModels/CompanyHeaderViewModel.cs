@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using FacetedWorlds.Ledger.Model;
 
-namespace FacetedWorlds.Ledger.ViewModels.Main
+namespace FacetedWorlds.Ledger.ViewModels
 {
     public class CompanyHeaderViewModel
     {

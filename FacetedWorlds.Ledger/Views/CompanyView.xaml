@@ -38,10 +38,10 @@
     				<RowDefinition/>
     				<RowDefinition Height="Auto"/>
     			</Grid.RowDefinitions>
-    			<ListBox Margin="8" ItemTemplate="{StaticResource AccountHeaderViewModelTemplate}" ItemsSource="{Binding Accounts}"/>
+    			<ListBox Margin="8" ItemTemplate="{StaticResource AccountHeaderViewModelTemplate}" ItemsSource="{Binding Accounts}" SelectedItem="{Binding SelectedAccount, Mode=TwoWay}"/>
     			<StackPanel Grid.Row="1" Orientation="Horizontal">
     				<Button Content="New" HorizontalAlignment="Left" Width="75" VerticalAlignment="Center" Margin="8" Click="NewAccount_Click"/>
-    				<Button Content="Delete" Width="75" VerticalAlignment="Center" Margin="8" Click="DeleteAccount_Click"/>
+    				<Button Content="Delete" Width="75" VerticalAlignment="Center" Margin="8" Click="DeleteAccount_Click" IsEnabled="{Binding CanDeleteAccount}"/>
     			</StackPanel>
     		</Grid>
     	</Grid>

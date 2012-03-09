@@ -48,16 +48,29 @@ namespace FacetedWorlds.Ledger.ViewModels.Main
                     ? null
                     : new AccountHeaderViewModel(_navigationModel.SelectedAccount);
             }
+            set
+            {
+            	_navigationModel.SelectedAccount = value == null
+                    ? null
+                    : value.Account;
+            }
         }
 
         public void NewAccount(NewAccountModel newAccount)
         {
-            _share.Company.NewAccount(newAccount.Name, (int)newAccount.AccountType);
+            _navigationModel.SelectedAccount = _share.Company.NewAccount(
+                newAccount.Name, (int)newAccount.AccountType);
+        }
+
+        public bool CanDeleteAccount
+        {
+            get { return _navigationModel.SelectedAccount != null; }
         }
 
         public void DeleteAccount()
         {
             _navigationModel.SelectedAccount.Delete();
+            _navigationModel.SelectedAccount = null;
         }
     }
 }

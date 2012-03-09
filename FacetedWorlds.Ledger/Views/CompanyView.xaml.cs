@@ -26,8 +26,7 @@ namespace FacetedWorlds.Ledger.Views
         {
             var window = new NewAccountWindow();
             var newAccount = new NewAccountModel();
-            newAccount.Name = "<New Account>";
-            window.DataContext = ForView.Wrap(newAccount);
+            window.DataContext = newAccount;
             window.Closed += NewAccountWindow_Closed;
             window.Show();
         }
@@ -38,7 +37,7 @@ namespace FacetedWorlds.Ledger.Views
             if (window.DialogResult ?? false)
             {
                 var viewModel = ForView.Unwrap<CompanyViewModel>(DataContext);
-                var newAccount = ForView.Unwrap<NewAccountModel>(((FrameworkElement)sender).DataContext);
+                var newAccount = (NewAccountModel)((FrameworkElement)sender).DataContext;
                 viewModel.NewAccount(newAccount);
             }
             window.Closed -= NewAccountWindow_Closed;
@@ -46,10 +45,10 @@ namespace FacetedWorlds.Ledger.Views
 
         private void DeleteAccount_Click(object sender, RoutedEventArgs e)
         {
-            MessageBoxResult result = MessageBox.Show("Delete account n?", "Delete account", MessageBoxButton.OKCancel);
+            var viewModel = ForView.Unwrap<CompanyViewModel>(((FrameworkElement)sender).DataContext);
+            MessageBoxResult result = MessageBox.Show(String.Format("Delete account {0}?", viewModel.SelectedAccount.Name), "Delete account", MessageBoxButton.OKCancel);
             if (result == MessageBoxResult.OK)
             {
-                var viewModel = ForView.Unwrap<CompanyViewModel>(((FrameworkElement)sender).DataContext);
                 viewModel.DeleteAccount();
             }
         }

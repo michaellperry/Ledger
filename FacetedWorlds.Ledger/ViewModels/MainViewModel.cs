@@ -13,12 +13,14 @@ namespace FacetedWorlds.Ledger.ViewModels
     {
         private Community _community;
         private NavigationModel _navigationModel;
+        private NewEntryModel _newEntry;
         private SynchronizationService _synhronizationService;
 
-        public MainViewModel(Community community, NavigationModel navigationModel, SynchronizationService synhronizationService)
+        public MainViewModel(Community community, NavigationModel navigationModel, NewEntryModel newEntry, SynchronizationService synhronizationService)
         {
             _community = community;
             _navigationModel = navigationModel;
+            _newEntry = newEntry;
             _synhronizationService = synhronizationService;
         }
 
@@ -55,7 +57,7 @@ namespace FacetedWorlds.Ledger.ViewModels
             {
                 return _navigationModel.SelectedShare == null
                     ? null
-                    : new CompanyViewModel(_navigationModel.SelectedShare, _navigationModel);
+                    : new CompanyViewModel(_navigationModel.SelectedShare, _navigationModel, _newEntry);
             }
         }
 

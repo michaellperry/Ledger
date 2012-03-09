@@ -38,7 +38,7 @@
     				<Button Content="Delete" Width="75" VerticalAlignment="Center" Margin="8" Click="DeleteAccount_Click" IsEnabled="{Binding CanDeleteAccount}"/>
     			</StackPanel>
     		</Grid>
-    		<local:LedgerControl Grid.Column="1" DataContext="{Binding AccountDetail}"/>
+    		<local:LedgerControl Grid.Column="1" DataContext="{Binding AccountDetail}" Margin="8"/>
     	</Grid>
 
     </Grid>

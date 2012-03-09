@@ -9,12 +9,22 @@ namespace FacetedWorlds.Ledger.ViewModels
     public class BookViewModel
     {
         private readonly Book _book;
-
         private NewEntryModel _newEntry = new NewEntryModel();
 
-        public BookViewModel(Book book)
+        public BookViewModel(Book book, NewEntryModel newEntry)
         {
             _book = book;
+            _newEntry = newEntry;
+        }
+
+        public string Name
+        {
+            get { return _book.Account.Name.Value; }
+        }
+
+        public AccountType Type
+        {
+            get { return (AccountType)_book.Account.Type; }
         }
 
         public IEnumerable<EntryViewModel> Entries
@@ -28,10 +38,10 @@ namespace FacetedWorlds.Ledger.ViewModels
             }
         }
 
-        public DateTime Date
+        public string Date
         {
-            get { return _newEntry.Date; }
-            set { _newEntry.Date = value; }
+            get { return _newEntry.Date.ToString("M/d"); }
+            set { _newEntry.Date = DateTime.Parse(String.Format("{0}/{1}", value, _book.Year.CalendarYear)); }
         }
 
         public string Id
@@ -52,7 +62,7 @@ namespace FacetedWorlds.Ledger.ViewModels
             set
             {
             	_newEntry.Account = _book.Account.Company.Accounts
-                    .FirstOrDefault(account => account.Name.Value == value && account != _book.Account);
+                    .FirstOrDefault(account => account.Name.Value.ToLower().StartsWith(value) && account != _book.Account);
             }
         }
 

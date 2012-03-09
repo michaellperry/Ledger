@@ -5,7 +5,7 @@ namespace FacetedWorlds.Ledger.Models
     public class NewAccountModel
     {
         private Independent<string> _name = new Independent<string>();
-        private Independent<AccountType> _accountType = new Independent<AccountType>();
+        private Independent<AccountType> _type = new Independent<AccountType>();
 
         public string Name
         {
@@ -13,10 +13,10 @@ namespace FacetedWorlds.Ledger.Models
             set { _name.Value = value; }
         }
 
-        public AccountType AccountType
+        public AccountType Type
         {
-            get { return _accountType; }
-            set { _accountType.Value = value; }
+            get { return _type; }
+            set { _type.Value = value; }
         }
     }
 }

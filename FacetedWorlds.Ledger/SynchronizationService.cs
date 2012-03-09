@@ -1,13 +1,8 @@
 using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Windows.Threading;
+using System.Text.RegularExpressions;
+using FacetedWorlds.Ledger.Model;
 using UpdateControls.Correspondence;
 using UpdateControls.Correspondence.IsolatedStorage;
-using UpdateControls.Correspondence.BinaryHTTPClient;
-using FacetedWorlds.Ledger.Models;
-using FacetedWorlds.Ledger.Model;
-using System.Text.RegularExpressions;
 
 namespace FacetedWorlds.Ledger
 {

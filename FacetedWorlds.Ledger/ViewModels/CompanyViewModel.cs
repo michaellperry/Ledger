@@ -8,11 +8,13 @@ namespace FacetedWorlds.Ledger.ViewModels
 {
     public class CompanyViewModel
     {
+        private NewEntryModel _newEntry;
         private readonly Share _share;
         private readonly NavigationModel _navigationModel;
 
-        public CompanyViewModel(Share share, NavigationModel navigationModel)
+        public CompanyViewModel(Share share, NavigationModel navigationModel, NewEntryModel newEntry)
         {
+            _newEntry = newEntry;
             _share = share;
             _navigationModel = navigationModel;
         }
@@ -62,14 +64,14 @@ namespace FacetedWorlds.Ledger.ViewModels
             {
                 return _navigationModel.SelectedAccount == null
                     ? null
-                    : new BookViewModel(_navigationModel.SelectedAccount.GetBook(_navigationModel.SelectedYear));
+                    : new BookViewModel(_navigationModel.SelectedAccount.GetBook(_navigationModel.SelectedYear), _newEntry);
             }
         }
 
         public void NewAccount(NewAccountModel newAccount)
         {
             _navigationModel.SelectedAccount = _share.Company.NewAccount(
-                newAccount.Name, (int)newAccount.AccountType);
+                newAccount.Name, (int)newAccount.Type);
         }
 
         public bool CanDeleteAccount

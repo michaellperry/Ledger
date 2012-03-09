@@ -18,7 +18,7 @@ namespace FacetedWorlds.Ledger.Views
         {
             var window = new NewAccountWindow();
             var newAccount = new NewAccountModel();
-            window.DataContext = newAccount;
+            window.DataContext = ForView.Wrap(newAccount);
             window.Closed += NewAccountWindow_Closed;
             window.Show();
         }
@@ -29,7 +29,7 @@ namespace FacetedWorlds.Ledger.Views
             if (window.DialogResult ?? false)
             {
                 var viewModel = ForView.Unwrap<CompanyViewModel>(DataContext);
-                var newAccount = (NewAccountModel)((FrameworkElement)sender).DataContext;
+                var newAccount = ForView.Unwrap<NewAccountModel>(((FrameworkElement)sender).DataContext);
                 viewModel.NewAccount(newAccount);
             }
             window.Closed -= NewAccountWindow_Closed;

@@ -14,7 +14,8 @@ namespace FacetedWorlds.Ledger.ViewModels
 
         public ViewModelLocator()
         {
-            NavigationModel navigationModel = new NavigationModel();
+            var navigationModel = new NavigationModel();
+            var newEntry = new NewEntryModel();
             _synchronizationService = new SynchronizationService();
             if (!DesignerProperties.IsInDesignTool)
             {
@@ -22,7 +23,7 @@ namespace FacetedWorlds.Ledger.ViewModels
                 navigationModel.SelectedShare = _synchronizationService.Identity.ActiveShares
                     .OrderBy(share => share.Company.Name.Value)
                     .FirstOrDefault();
-                _main = new MainViewModel(_synchronizationService.Community, navigationModel, _synchronizationService);
+                _main = new MainViewModel(_synchronizationService.Community, navigationModel, newEntry, _synchronizationService);
             }
         }
 

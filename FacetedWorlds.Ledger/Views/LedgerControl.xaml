@@ -13,11 +13,11 @@
     
 	<Grid x:Name="LayoutRoot" Background="White">
 		<Grid.RowDefinitions>
-			<RowDefinition Height="Auto"/>
-			<RowDefinition Height="Auto"/>
+			<RowDefinition Height="34"/>
+			<RowDefinition Height="26"/>
 			<RowDefinition/>
 		</Grid.RowDefinitions>
-		<Border BorderThickness="1" Background="{Binding AccountType, Converter={StaticResource AccountTypeBrushConverter}}">
+		<Border BorderThickness="1" Background="{Binding Type, Converter={StaticResource AccountTypeBrushConverter}}">
 			<TextBlock TextWrapping="Wrap" Text="{Binding Name}" Foreground="White" FontSize="16" Margin="4"/>
 		</Border>
 		<Grid Grid.Row="1">
@@ -54,7 +54,7 @@
 		</Grid>
 		<ScrollViewer Grid.Row="2">
 			<StackPanel Height="271" Width="660">
-				<ItemsControl Height="50"/>
+				<ItemsControl/>
 				<Grid>
 					<Grid.ColumnDefinitions>
 						<ColumnDefinition Width="76"/>
@@ -65,10 +65,10 @@
 						<ColumnDefinition Width="81"/>
 						<ColumnDefinition Width="92"/>
 					</Grid.ColumnDefinitions>
-					<sdk:DatePicker VerticalAlignment="Center" Margin="2" SelectedDate="{Binding Date}"/>
+					<TextBox Margin="2" TextWrapping="Wrap" Text="{Binding Date, Mode=TwoWay}" d:LayoutOverrides="Width, Height"/>
 					<TextBox Grid.Column="1" TextWrapping="Wrap" Text="{Binding Id, Mode=TwoWay}" VerticalAlignment="Center" Margin="2"/>
 					<TextBox Grid.Column="2" TextWrapping="Wrap" Text="{Binding Description, Mode=TwoWay}" VerticalAlignment="Center" Margin="2"/>
-					<sdk:AutoCompleteBox Grid.Column="3" VerticalAlignment="Center" Margin="2" Text="{Binding AccountName}" ValueMemberBinding="{Binding AccountNameOptions}"/>
+					<sdk:AutoCompleteBox Grid.Column="3" VerticalAlignment="Center" Margin="2" Text="{Binding AccountName, Mode=TwoWay}" ValueMemberBinding="{Binding AccountNameOptions}" IsTextCompletionEnabled="True"/>
 					<TextBox Grid.Column="4" TextWrapping="Wrap" Text="{Binding Increase, Mode=TwoWay}" VerticalAlignment="Center" Margin="2"/>
 					<TextBox Grid.Column="5" TextWrapping="Wrap" Text="{Binding Decrease, Mode=TwoWay}" VerticalAlignment="Center" Margin="2"/>
 				</Grid>

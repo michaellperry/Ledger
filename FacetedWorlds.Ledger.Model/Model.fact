@@ -87,7 +87,6 @@ query:
 
 fact Entry {
 key:
-	unique;
 	Book credit;
 	Book debit;
 	date entryDate;

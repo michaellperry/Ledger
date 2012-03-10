@@ -1191,7 +1191,6 @@ namespace FacetedWorlds.Ledger.Model
 				{
 					using (BinaryReader output = new BinaryReader(data))
 					{
-						newFact._unique = (Guid)_fieldSerializerByType[typeof(Guid)].ReadData(output);
 						newFact._entryDate = (DateTime)_fieldSerializerByType[typeof(DateTime)].ReadData(output);
 						newFact._amount = (float)_fieldSerializerByType[typeof(float)].ReadData(output);
 						newFact._created = (DateTime)_fieldSerializerByType[typeof(DateTime)].ReadData(output);
@@ -1204,7 +1203,6 @@ namespace FacetedWorlds.Ledger.Model
 			public void WriteFactData(CorrespondenceFact obj, BinaryWriter output)
 			{
 				Entry fact = (Entry)obj;
-				_fieldSerializerByType[typeof(Guid)].WriteData(output, fact._unique);
 				_fieldSerializerByType[typeof(DateTime)].WriteData(output, fact._entryDate);
 				_fieldSerializerByType[typeof(float)].WriteData(output, fact._amount);
 				_fieldSerializerByType[typeof(DateTime)].WriteData(output, fact._created);
@@ -1252,9 +1250,6 @@ namespace FacetedWorlds.Ledger.Model
         private PredecessorObj<Book> _credit;
         private PredecessorObj<Book> _debit;
 
-        // Unique
-        private Guid _unique;
-
         // Fields
         private DateTime _entryDate;
         private float _amount;
@@ -1273,7 +1268,6 @@ namespace FacetedWorlds.Ledger.Model
             ,DateTime created
             )
         {
-            _unique = Guid.NewGuid();
             InitializeResults();
             _credit = new PredecessorObj<Book>(this, RoleCredit, credit);
             _debit = new PredecessorObj<Book>(this, RoleDebit, debit);
@@ -1308,8 +1302,6 @@ namespace FacetedWorlds.Ledger.Model
         }
 
         // Field access
-		public Guid Unique { get { return _unique; } }
-
         public DateTime EntryDate
         {
             get { return _entryDate; }

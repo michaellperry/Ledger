@@ -10,7 +10,7 @@ namespace FacetedWorlds.Ledger.ViewModels
     public class BookViewModel
     {
         private readonly Book _book;
-        private NewEntryModel _newEntry = new NewEntryModel();
+        private readonly NewEntryModel _newEntry;
 
         private DependentList<AccountHeaderViewModel> _otherAccountOptions;
 
@@ -71,6 +71,12 @@ namespace FacetedWorlds.Ledger.ViewModels
             set { _newEntry.Account = value == null ? null : value.Account; }
         }
 
+        public string OtherAccountName
+        {
+            get { return _newEntry.Account == null ? null : _newEntry.Account.Name.Value; }
+            set { _newEntry.Account = _book.Account.Company.Accounts.FirstOrDefault(account => account.Name.Value == value); }
+        }
+
         public IEnumerable<AccountHeaderViewModel> OtherAccountOptions
         {
             get { return _otherAccountOptions; }
@@ -88,13 +94,30 @@ namespace FacetedWorlds.Ledger.ViewModels
             set { _newEntry.Decrease = float.Parse(value); }
         }
 
-        public void EnterRow()
+        public bool EnterRow()
         {
             if (_newEntry.IsValid(_book))
             {
                 _newEntry.AddEntry(_book);
                 _newEntry.Clear();
+                return true;
             }
+            return false;
+        }
+
+        public override bool Equals(object obj)
+        {
+            if (this == obj)
+                return true;
+            BookViewModel that = obj as BookViewModel;
+            if (that == null)
+                return false;
+            return _book.Equals(that._book);
+        }
+
+        public override int GetHashCode()
+        {
+            return _book.GetHashCode();
         }
     }
 }

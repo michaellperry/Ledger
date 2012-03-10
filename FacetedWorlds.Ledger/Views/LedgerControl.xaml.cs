@@ -18,11 +18,7 @@ namespace FacetedWorlds.Ledger.Views
         private void NewEntry_KeyDown(object sender, KeyEventArgs e)
         {
             if (e.Key == Key.Enter)
-            {
-                TextBox textBox = (TextBox)sender;
-                textBox.GetBindingExpression(TextBox.TextProperty).UpdateSource();
                 HandleEnter(e.Key);
-            }
         }
 
         private void TextBox_GotFocus(object sender, RoutedEventArgs e)
@@ -62,8 +58,9 @@ namespace FacetedWorlds.Ledger.Views
                 var viewModel = ForView.Unwrap<BookViewModel>(DataContext);
                 if (viewModel != null)
                 {
-                    if (viewModel.EnterRow())
-                        DateTextBox.Focus();
+                    DateTextBox.Focus();
+                    viewModel.EnterRow();
+                    LedgerScrollViewer.ScrollToBottom();
                     return true;
                 }
             }

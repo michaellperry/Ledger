@@ -60,7 +60,7 @@
 				<TextBlock Text="Balance" FontSize="13.333" Margin="2"/>
 			</Border>
 		</Grid>
-		<ScrollViewer Grid.Row="2">
+		<ScrollViewer Grid.Row="2" Name="LedgerScrollViewer">
 			<StackPanel>
 				<ItemsControl ItemsSource="{Binding Entries}" ItemTemplate="{StaticResource EntryTemplate}"/>
 				<Grid>

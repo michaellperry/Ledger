@@ -29,6 +29,5 @@
     	</Border>
     	<TextBlock Text="{Binding Increase}" Margin="2" VerticalAlignment="Center" Grid.Column="4" TextAlignment="Right"/>
     	<TextBlock Text="{Binding Decrease}" Margin="2" VerticalAlignment="Center" Grid.Column="5" TextAlignment="Right"/>
-
     </Grid>
 </UserControl>

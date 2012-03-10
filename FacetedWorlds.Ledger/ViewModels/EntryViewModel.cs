@@ -1,6 +1,8 @@
 using System;
 using FacetedWorlds.Ledger.Model;
 using FacetedWorlds.Ledger.Models;
+using System.Windows.Input;
+using UpdateControls.XAML;
 
 namespace FacetedWorlds.Ledger.ViewModels
 {
@@ -54,6 +56,18 @@ namespace FacetedWorlds.Ledger.ViewModels
                     return _entry.Debit == _book;
                 else
                     return _entry.Credit == _book;
+            }
+        }
+
+        public ICommand Void
+        {
+            get
+            {
+                return MakeCommand
+                    .Do(delegate
+                    {
+                        _entry.Void();
+                    });
             }
         }
     }

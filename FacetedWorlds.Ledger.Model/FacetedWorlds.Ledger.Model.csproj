@@ -65,6 +65,7 @@
     <Compile Include="Account.cs" />
     <Compile Include="Book.cs" />
     <Compile Include="Company.cs" />
+    <Compile Include="Entry.cs" />
     <Compile Include="Identity.cs" />
     <Compile Include="Model.generated.cs">
       <AutoGen>True</AutoGen>

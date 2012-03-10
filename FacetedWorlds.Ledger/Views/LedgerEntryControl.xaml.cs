@@ -1,14 +1,5 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Net;
-using System.Windows;
-using System.Windows.Controls;
-using System.Windows.Documents;
-using System.Windows.Input;
-using System.Windows.Media;
-using System.Windows.Media.Animation;
-using System.Windows.Shapes;
+﻿using System.Windows.Controls;
+using System.Windows.Data;
 
 namespace FacetedWorlds.Ledger.Views
 {
@@ -17,6 +8,12 @@ namespace FacetedWorlds.Ledger.Views
         public LedgerEntryControl()
         {
             InitializeComponent();
+
+            ContextMenu contextMenu = new ContextMenu();
+            MenuItem voidMenuItem = new MenuItem() { Header = "Void" };
+            voidMenuItem.SetBinding(MenuItem.CommandProperty, new Binding("Void"));
+            contextMenu.Items.Add(voidMenuItem);
+            ContextMenuService.SetContextMenu(this, contextMenu);
         }
     }
 }

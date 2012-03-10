@@ -3,15 +3,23 @@
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
     xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
-    xmlns:Converters="clr-namespace:FacetedWorlds.Ledger.Converters" xmlns:sdk="http://schemas.microsoft.com/winfx/2006/xaml/presentation/sdk" x:Class="FacetedWorlds.Ledger.Views.LedgerControl"
+    xmlns:Converters="clr-namespace:FacetedWorlds.Ledger.Converters" xmlns:sdk="http://schemas.microsoft.com/winfx/2006/xaml/presentation/sdk" xmlns:local="clr-namespace:FacetedWorlds.Ledger.Views" x:Class="FacetedWorlds.Ledger.Views.LedgerControl"
     mc:Ignorable="d"
-    d:DesignHeight="341" d:DesignWidth="687">
+    d:DesignHeight="466.67" d:DesignWidth="750">
     
 	<UserControl.Resources>
 		<Converters:AccountTypeBrushConverter x:Key="AccountTypeBrushConverter"/>
+		<DataTemplate x:Key="AccountHeaderViewModelTemplate">
+			<Border Background="{Binding AccountType, Converter={StaticResource AccountTypeBrushConverter}}" Width="120">
+				<TextBlock Text="{Binding Name}" Foreground="White"/>
+			</Border>
+		</DataTemplate>
+		<DataTemplate x:Key="EntryTemplate">
+			<local:LedgerEntryControl/>
+		</DataTemplate>
 	</UserControl.Resources>
     
-	<Grid x:Name="LayoutRoot" Background="White">
+	<Grid x:Name="LayoutRoot" Background="White" d:DataContext="{d:DesignData /SampleData/BookViewModelSampleData.xaml}">
 		<Grid.RowDefinitions>
 			<RowDefinition Height="34"/>
 			<RowDefinition Height="26"/>
@@ -31,30 +39,30 @@
 				<ColumnDefinition Width="108"/>
 			</Grid.ColumnDefinitions>
 			<Border BorderBrush="{StaticResource HeaderBorderBrush}" BorderThickness="1" Background="{StaticResource HeaderBackgroundBrush}" d:LayoutOverrides="Margin">
-				<TextBlock TextWrapping="Wrap" Text="Date" FontSize="13.333" Margin="2"/>
+				<TextBlock Text="Date" FontSize="13.333" Margin="2"/>
 			</Border>
 			<Border BorderBrush="{StaticResource HeaderBorderBrush}" BorderThickness="1" Background="{StaticResource HeaderBackgroundBrush}" Grid.Column="1" d:LayoutOverrides="Margin">
-				<TextBlock TextWrapping="Wrap" Text="ID" FontSize="13.333" Margin="2"/>
+				<TextBlock Text="ID" FontSize="13.333" Margin="2"/>
 			</Border>
 			<Border BorderBrush="{StaticResource HeaderBorderBrush}" BorderThickness="1" Background="{StaticResource HeaderBackgroundBrush}" Grid.Column="2" d:LayoutOverrides="Margin">
-				<TextBlock TextWrapping="Wrap" Text="Description" FontSize="13.333" Margin="2"/>
+				<TextBlock Text="Description" FontSize="13.333" Margin="2"/>
 			</Border>
 			<Border BorderBrush="{StaticResource HeaderBorderBrush}" BorderThickness="1" Background="{StaticResource HeaderBackgroundBrush}" Grid.Column="3" d:LayoutOverrides="Margin">
-				<TextBlock TextWrapping="Wrap" Text="Account" FontSize="13.333" Margin="2"/>
+				<TextBlock Text="Account" FontSize="13.333" Margin="2"/>
 			</Border>
 			<Border BorderBrush="{StaticResource HeaderBorderBrush}" BorderThickness="1" Background="{StaticResource HeaderBackgroundBrush}" Grid.Column="4" d:LayoutOverrides="Margin">
-				<TextBlock TextWrapping="Wrap" Text="Increase" FontSize="13.333" Margin="2"/>
+				<TextBlock Text="Increase" FontSize="13.333" Margin="2"/>
 			</Border>
 			<Border BorderBrush="{StaticResource HeaderBorderBrush}" BorderThickness="1" Background="{StaticResource HeaderBackgroundBrush}" Grid.Column="5" d:LayoutOverrides="Margin">
-				<TextBlock TextWrapping="Wrap" Text="Decrease" FontSize="13.333" Margin="2"/>
+				<TextBlock Text="Decrease" FontSize="13.333" Margin="2"/>
 			</Border>
 			<Border BorderBrush="{StaticResource HeaderBorderBrush}" BorderThickness="1" Background="{StaticResource HeaderBackgroundBrush}" Grid.Column="6" d:LayoutOverrides="Margin">
-				<TextBlock TextWrapping="Wrap" Text="Balance" FontSize="13.333" Margin="2"/>
+				<TextBlock Text="Balance" FontSize="13.333" Margin="2"/>
 			</Border>
 		</Grid>
 		<ScrollViewer Grid.Row="2">
-			<StackPanel Height="271" Width="660">
-				<ItemsControl/>
+			<StackPanel>
+				<ItemsControl ItemsSource="{Binding Entries}" ItemTemplate="{StaticResource EntryTemplate}"/>
 				<Grid>
 					<Grid.ColumnDefinitions>
 						<ColumnDefinition Width="76"/>
@@ -65,12 +73,12 @@
 						<ColumnDefinition Width="81"/>
 						<ColumnDefinition Width="92"/>
 					</Grid.ColumnDefinitions>
-					<TextBox Margin="2" TextWrapping="Wrap" Text="{Binding Date, Mode=TwoWay}" d:LayoutOverrides="Width, Height"/>
-					<TextBox Grid.Column="1" TextWrapping="Wrap" Text="{Binding Id, Mode=TwoWay}" VerticalAlignment="Center" Margin="2"/>
-					<TextBox Grid.Column="2" TextWrapping="Wrap" Text="{Binding Description, Mode=TwoWay}" VerticalAlignment="Center" Margin="2"/>
-					<sdk:AutoCompleteBox Grid.Column="3" VerticalAlignment="Center" Margin="2" Text="{Binding AccountName, Mode=TwoWay}" ValueMemberBinding="{Binding AccountNameOptions}" IsTextCompletionEnabled="True"/>
-					<TextBox Grid.Column="4" TextWrapping="Wrap" Text="{Binding Increase, Mode=TwoWay}" VerticalAlignment="Center" Margin="2"/>
-					<TextBox Grid.Column="5" TextWrapping="Wrap" Text="{Binding Decrease, Mode=TwoWay}" VerticalAlignment="Center" Margin="2"/>
+					<TextBox Margin="2" Text="{Binding Date, Mode=TwoWay}" d:LayoutOverrides="Width, Height" KeyDown="NewEntry_KeyDown" GotFocus="TextBox_GotFocus" />
+					<TextBox Grid.Column="1" Text="{Binding Id, Mode=TwoWay}" VerticalAlignment="Center" Margin="2" KeyDown="NewEntry_KeyDown" GotFocus="TextBox_GotFocus" />
+					<TextBox Grid.Column="2" Text="{Binding Description, Mode=TwoWay}" VerticalAlignment="Center" Margin="2" KeyDown="NewEntry_KeyDown" GotFocus="TextBox_GotFocus" />
+					<ComboBox Margin="2" d:LayoutOverrides="Height" Grid.Column="3" VerticalAlignment="Center" SelectedItem="{Binding OtherAccount, Mode=TwoWay}" ItemTemplate="{StaticResource AccountHeaderViewModelTemplate}" ItemsSource="{Binding OtherAccountOptions}" KeyDown="NewEntry_KeyDown" />
+					<TextBox Grid.Column="4" Text="{Binding Increase, Mode=TwoWay}" VerticalAlignment="Center" Margin="2" KeyDown="NewEntry_KeyDown" TextAlignment="Right" GotFocus="TextBox_GotFocus" />
+					<TextBox Grid.Column="5" Text="{Binding Decrease, Mode=TwoWay}" VerticalAlignment="Center" Margin="2" KeyDown="NewEntry_KeyDown" TextAlignment="Right" GotFocus="TextBox_GotFocus" />
 				</Grid>
 
 			</StackPanel>

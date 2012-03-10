@@ -1,14 +1,8 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Net;
-using System.Windows;
+﻿using System.Windows;
 using System.Windows.Controls;
-using System.Windows.Documents;
 using System.Windows.Input;
-using System.Windows.Media;
-using System.Windows.Media.Animation;
-using System.Windows.Shapes;
+using FacetedWorlds.Ledger.ViewModels;
+using UpdateControls.XAML;
 
 namespace FacetedWorlds.Ledger.Views
 {
@@ -17,6 +11,20 @@ namespace FacetedWorlds.Ledger.Views
         public LedgerControl()
         {
             InitializeComponent();
+        }
+
+        private void NewEntry_KeyDown(object sender, KeyEventArgs e)
+        {
+            if (e.Key == Key.Enter)
+            {
+                var viewModel = ForView.Unwrap<BookViewModel>(DataContext);
+                viewModel.EnterRow();
+            }
+        }
+
+        private void TextBox_GotFocus(object sender, RoutedEventArgs e)
+        {
+            ((TextBox)sender).SelectAll();
         }
     }
 }

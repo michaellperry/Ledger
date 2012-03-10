@@ -1,0 +1,5 @@
+<ViewModels:EntryViewModel xmlns:ViewModels="clr-namespace:FacetedWorlds.Ledger.ViewModels" Decrease="Aliquam cras nam integer vestibulum" Date="Aenean maecenas" Description="Duis sed adipiscing praesent" IsIncrease="True" Id="Mauris accumsan class" Increase="Curae quisque bibendum">
+	<ViewModels:EntryViewModel.OtherAccount>
+		<ViewModels:AccountHeaderViewModel AccountType="Asset" Name="Nullam dictumst dis donec parturient"/>
+	</ViewModels:EntryViewModel.OtherAccount>
+</ViewModels:EntryViewModel>

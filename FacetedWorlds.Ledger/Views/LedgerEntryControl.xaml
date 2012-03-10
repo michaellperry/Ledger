@@ -1,12 +1,34 @@
-﻿<UserControl x:Class="FacetedWorlds.Ledger.Views.LedgerEntryControl"
+﻿<UserControl
     xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
     xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+    xmlns:Converters="clr-namespace:FacetedWorlds.Ledger.Converters" x:Class="FacetedWorlds.Ledger.Views.LedgerEntryControl"
     mc:Ignorable="d"
-    d:DesignHeight="300" d:DesignWidth="400">
+    d:DesignHeight="29.362" d:DesignWidth="794">
     
-    <Grid x:Name="LayoutRoot" Background="White">
+	<UserControl.Resources>
+		<Converters:AccountTypeBrushConverter x:Key="AccountTypeBrushConverter"/>
+	</UserControl.Resources>
+    
+    <Grid x:Name="LayoutRoot" Background="White" d:DataContext="{d:DesignData /SampleData/EntryViewModelSampleData.xaml}">
+		<Grid.ColumnDefinitions>
+			<ColumnDefinition Width="76"/>
+			<ColumnDefinition Width="92"/>
+			<ColumnDefinition/>
+			<ColumnDefinition Width="128"/>
+			<ColumnDefinition Width="79"/>
+			<ColumnDefinition Width="81"/>
+			<ColumnDefinition Width="92"/>
+		</Grid.ColumnDefinitions>
+    	<TextBlock Text="{Binding Date}" Margin="2" VerticalAlignment="Center"/>
+    	<TextBlock Text="{Binding Id}" Margin="2" VerticalAlignment="Center" Grid.Column="1"/>
+    	<TextBlock Text="{Binding Description}" Margin="2" VerticalAlignment="Center" Grid.Column="2"/>
+    	<Border Grid.Column="3" Margin="2" VerticalAlignment="Center" Background="{Binding OtherAccount.AccountType, Converter={StaticResource AccountTypeBrushConverter}}" Width="120" >
+    		<TextBlock Text="{Binding OtherAccount.Name}" Height="16" Foreground="White" Margin="2"/>
+    	</Border>
+    	<TextBlock Text="{Binding Increase}" Margin="2" VerticalAlignment="Center" Grid.Column="4" TextAlignment="Right"/>
+    	<TextBlock Text="{Binding Decrease}" Margin="2" VerticalAlignment="Center" Grid.Column="5" TextAlignment="Right"/>
 
     </Grid>
 </UserControl>

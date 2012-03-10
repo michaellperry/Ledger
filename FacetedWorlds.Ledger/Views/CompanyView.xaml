@@ -20,7 +20,7 @@
     			<ColumnDefinition Width="Auto"/>
     		</Grid.ColumnDefinitions>
     		<TextBox Margin="12" TextWrapping="Wrap" Text="{Binding Name, Mode=TwoWay}" VerticalAlignment="Center" FontSize="18.667" Height="36"/>
-    		<sdk:AutoCompleteBox HorizontalAlignment="Left" VerticalAlignment="Center" Grid.Column="1" Margin="8" Width="75" Text="{Binding Year}"/>
+    		<sdk:AutoCompleteBox HorizontalAlignment="Left" VerticalAlignment="Center" Grid.Column="1" Margin="8" Width="75" Text="{Binding Year, Mode=TwoWay}"/>
     	</Grid>
     	<Grid Grid.Row="1">
     		<Grid.ColumnDefinitions>

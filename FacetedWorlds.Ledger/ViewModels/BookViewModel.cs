@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using FacetedWorlds.Ledger.Model;
 using FacetedWorlds.Ledger.Models;
+using UpdateControls.Collections;
 
 namespace FacetedWorlds.Ledger.ViewModels
 {
@@ -11,10 +12,18 @@ namespace FacetedWorlds.Ledger.ViewModels
         private readonly Book _book;
         private NewEntryModel _newEntry = new NewEntryModel();
 
+        private DependentList<AccountHeaderViewModel> _otherAccountOptions;
+
         public BookViewModel(Book book, NewEntryModel newEntry)
         {
             _book = book;
             _newEntry = newEntry;
+
+            _otherAccountOptions = new DependentList<AccountHeaderViewModel>(() =>
+                from account in _book.Account.Company.Accounts
+                orderby account.Name.Value
+                select new AccountHeaderViewModel(account)
+            );
         }
 
         public string Name
@@ -56,49 +65,36 @@ namespace FacetedWorlds.Ledger.ViewModels
             set { _newEntry.Description = value; }
         }
 
-        public string AccountName
+        public AccountHeaderViewModel OtherAccount
         {
-            get { return _newEntry.Account == null ? null : _newEntry.Account.Name.Value; }
-            set
+            get { return _otherAccountOptions.FirstOrDefault(vm => vm.Account == _newEntry.Account); }
+            set { _newEntry.Account = value == null ? null : value.Account; }
+        }
+
+        public IEnumerable<AccountHeaderViewModel> OtherAccountOptions
+        {
+            get { return _otherAccountOptions; }
+        }
+
+        public string Increase
+        {
+            get { return _newEntry.Increase == 0.0 ? String.Empty : _newEntry.Increase.ToString("0.00"); }
+            set { _newEntry.Increase = float.Parse(value); }
+        }
+
+        public string Decrease
+        {
+            get { return _newEntry.Decrease == 0.0 ? String.Empty : _newEntry.Decrease.ToString("0.00"); }
+            set { _newEntry.Decrease = float.Parse(value); }
+        }
+
+        public void EnterRow()
+        {
+            if (_newEntry.IsValid(_book))
             {
-            	_newEntry.Account = _book.Account.Company.Accounts
-                    .FirstOrDefault(account => account.Name.Value.ToLower().StartsWith(value) && account != _book.Account);
+                _newEntry.AddEntry(_book);
+                _newEntry.Clear();
             }
-        }
-
-        public IEnumerable<string> AccountNameOptions
-        {
-            get
-            {
-                return
-                    from account in _book.Account.Company.Accounts
-                    where account != _book.Account
-                    orderby account.Name.Value
-                    select account.Name.Value;
-            }
-        }
-
-        public AccountType? AccountType
-        {
-            get
-            {
-                if (_newEntry.Account == null)
-                    return null;
-                else
-                    return (AccountType)_newEntry.Account.Type;
-            }
-        }
-
-        public float Increase
-        {
-            get { return _newEntry.Increase; }
-            set { _newEntry.Increase = value; }
-        }
-
-        public float Decrease
-        {
-            get { return _newEntry.Decrease; }
-            set { _newEntry.Decrease = value; }
         }
     }
 }

@@ -1,0 +1,35 @@
+<ViewModels:BookViewModel xmlns:ViewModels="clr-namespace:FacetedWorlds.Ledger.ViewModels" xmlns:System="clr-namespace:System;assembly=mscorlib" Date="Curabitur class cras aliquam nam" Description="Vestibulum sed phasellus" Id="Maecenas aenean" Name="Dis praesent accumsan consequat" Type="Income">
+	<ViewModels:BookViewModel.Decrease>
+		<System:Single/>
+	</ViewModels:BookViewModel.Decrease>
+	<ViewModels:BookViewModel.Entries>
+		<ViewModels:EntryViewModel/>
+		<ViewModels:EntryViewModel/>
+		<ViewModels:EntryViewModel/>
+		<ViewModels:EntryViewModel/>
+		<ViewModels:EntryViewModel/>
+		<ViewModels:EntryViewModel/>
+		<ViewModels:EntryViewModel/>
+		<ViewModels:EntryViewModel/>
+		<ViewModels:EntryViewModel/>
+		<ViewModels:EntryViewModel/>
+	</ViewModels:BookViewModel.Entries>
+	<ViewModels:BookViewModel.Increase>
+		<System:Single/>
+	</ViewModels:BookViewModel.Increase>
+	<ViewModels:BookViewModel.OtherAccountOptions>
+		<ViewModels:AccountHeaderViewModel AccountType="Income" Name="Bibendum dictumst nullam aptent adipiscing"/>
+		<ViewModels:AccountHeaderViewModel AccountType="Liability" Name="Integer nunc"/>
+		<ViewModels:AccountHeaderViewModel AccountType="Expense" Name="Quisque eleifend parturient vestibulum est"/>
+		<ViewModels:AccountHeaderViewModel AccountType="Liability" Name="Amet ante facilisi convallis"/>
+		<ViewModels:AccountHeaderViewModel AccountType="Expense" Name="Auctor arcu hac"/>
+		<ViewModels:AccountHeaderViewModel AccountType="Income" Name="Faucibus habitant"/>
+		<ViewModels:AccountHeaderViewModel AccountType="Expense" Name="Inceptos curae vivamus donec"/>
+		<ViewModels:AccountHeaderViewModel AccountType="Liability" Name="Interdum etiam congue dignissim"/>
+		<ViewModels:AccountHeaderViewModel AccountType="Asset" Name="Aliquam aliquet leo vestibulum lobortis"/>
+		<ViewModels:AccountHeaderViewModel AccountType="Expense" Name="Mus adipiscing"/>
+	</ViewModels:BookViewModel.OtherAccountOptions>
+	<ViewModels:BookViewModel.OtherAccount>
+		<ViewModels:AccountHeaderViewModel AccountType="Income" Name="Duis mauris"/>
+	</ViewModels:BookViewModel.OtherAccount>
+</ViewModels:BookViewModel>

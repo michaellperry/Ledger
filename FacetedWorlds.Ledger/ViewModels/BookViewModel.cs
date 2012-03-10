@@ -85,13 +85,31 @@ namespace FacetedWorlds.Ledger.ViewModels
         public string Increase
         {
             get { return _newEntry.Increase == 0.0 ? String.Empty : _newEntry.Increase.ToString("0.00"); }
-            set { _newEntry.Increase = float.Parse(value); }
+            set { _newEntry.Increase = SafeParse(value); }
         }
 
         public string Decrease
         {
             get { return _newEntry.Decrease == 0.0 ? String.Empty : _newEntry.Decrease.ToString("0.00"); }
-            set { _newEntry.Decrease = float.Parse(value); }
+            set { _newEntry.Decrease = SafeParse(value); }
+        }
+
+        private static float SafeParse(string str)
+        {
+            float value;
+            if (!float.TryParse(str, out value))
+                value = 0.0f;
+            return value;
+        }
+
+        public float Balance
+        {
+            get
+            {
+                float netCredits = _book.Credits.Sum(credit => credit.Amount) - _book.Debits.Sum(debit => debit.Amount);
+                AccountType accountType = (AccountType)_book.Account.Type;
+                return accountType == AccountType.Income || accountType == AccountType.Liability ? netCredits : -netCredits;
+            }
         }
 
         public bool EnterRow()

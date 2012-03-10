@@ -17,7 +17,12 @@ namespace FacetedWorlds.Ledger.Views
 
         private void NewEntry_KeyDown(object sender, KeyEventArgs e)
         {
-            HandleEnter(e.Key);
+            if (e.Key == Key.Enter)
+            {
+                TextBox textBox = (TextBox)sender;
+                textBox.GetBindingExpression(TextBox.TextProperty).UpdateSource();
+                HandleEnter(e.Key);
+            }
         }
 
         private void TextBox_GotFocus(object sender, RoutedEventArgs e)

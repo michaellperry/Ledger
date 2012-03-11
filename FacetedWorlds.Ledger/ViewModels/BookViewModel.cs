@@ -50,7 +50,12 @@ namespace FacetedWorlds.Ledger.ViewModels
         public string Date
         {
             get { return _newEntry.Date.ToString("M/d"); }
-            set { _newEntry.Date = DateTime.Parse(String.Format("{0}/{1}", value, _book.Year.CalendarYear)); }
+            set
+            {
+                DateTime dateValue;
+                if (DateTime.TryParse(String.Format("{0}/{1}", value, _book.Year.CalendarYear), out dateValue))
+                    _newEntry.Date = dateValue;
+            }
         }
 
         public string Id

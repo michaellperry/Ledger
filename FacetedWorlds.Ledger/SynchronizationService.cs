@@ -3,6 +3,7 @@ using System.Text.RegularExpressions;
 using FacetedWorlds.Ledger.Model;
 using UpdateControls.Correspondence;
 using UpdateControls.Correspondence.IsolatedStorage;
+using UpdateControls.Correspondence.BinaryHTTPClient;
 
 namespace FacetedWorlds.Ledger
 {
@@ -20,6 +21,8 @@ namespace FacetedWorlds.Ledger
                 .Register<CorrespondenceModel>()
                 ;
 
+            _community.AddAsynchronousCommunicationStrategy(new BinaryHTTPAsynchronousCommunicationStrategy(new HttpConfigurationProvider()));
+
             _identity = _community.LoadFact<Identity>(ThisIdentity);
             if (_identity == null)
             {
@@ -27,6 +30,8 @@ namespace FacetedWorlds.Ledger
                 _identity = _community.AddFact(new Identity(randomId));
                 _community.SetFact(ThisIdentity, _identity);
             }
+
+            _community.BeginSending();
         }
 
         public Community Community

@@ -73,13 +73,13 @@
 						<ColumnDefinition Width="81"/>
 						<ColumnDefinition Width="92"/>
 					</Grid.ColumnDefinitions>
-					<TextBox x:Name="DateTextBox" Margin="2" Text="{Binding Date, Mode=TwoWay}" d:LayoutOverrides="Width, Height" KeyDown="NewEntry_KeyDown" GotFocus="TextBox_GotFocus" />
-					<TextBox Grid.Column="1" Text="{Binding Id, Mode=TwoWay}" VerticalAlignment="Center" Margin="2" KeyDown="NewEntry_KeyDown" GotFocus="TextBox_GotFocus" />
-					<TextBox Grid.Column="2" Text="{Binding Description, Mode=TwoWay}" VerticalAlignment="Center" Margin="2" KeyDown="NewEntry_KeyDown" GotFocus="TextBox_GotFocus" />
+                    <TextBox x:Name="DateTextBox" Margin="2" Text="{Binding Date, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" d:LayoutOverrides="Width, Height" KeyDown="NewEntry_KeyDown" GotFocus="TextBox_GotFocus" />
+                    <TextBox Grid.Column="1" Text="{Binding Id, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" VerticalAlignment="Center" Margin="2" KeyDown="NewEntry_KeyDown" GotFocus="TextBox_GotFocus" />
+                    <TextBox Grid.Column="2" Text="{Binding Description, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" VerticalAlignment="Center" Margin="2" KeyDown="NewEntry_KeyDown" GotFocus="TextBox_GotFocus" />
 					<!--<sdk:AutoCompleteBox Margin="2" d:LayoutOverrides="Height" Grid.Column="3" VerticalAlignment="Center" Text="{Binding OtherAccountName, Mode=TwoWay}" ItemTemplate="{StaticResource AccountHeaderViewModelTemplate}" ItemsSource="{Binding OtherAccountOptions}" ValueMemberBinding="{Binding Name}" KeyDown="NewEntry_KeyDown" />-->
                     <ComboBox  Margin="2" d:LayoutOverrides="Height" Grid.Column="3" VerticalAlignment="Center" SelectedItem="{Binding OtherAccount, Mode=TwoWay}" ItemTemplate="{StaticResource AccountHeaderViewModelTemplate}" ItemsSource="{Binding OtherAccountOptions}" KeyDown="AccountComboBox_KeyDown"/>
-					<TextBox Grid.Column="4" Text="{Binding Increase, Mode=TwoWay}" VerticalAlignment="Center" Margin="2" KeyDown="NewEntry_KeyDown" TextAlignment="Right" GotFocus="TextBox_GotFocus" />
-					<TextBox Grid.Column="5" Text="{Binding Decrease, Mode=TwoWay}" VerticalAlignment="Center" Margin="2" KeyDown="NewEntry_KeyDown" TextAlignment="Right" GotFocus="TextBox_GotFocus" />
+                    <TextBox Grid.Column="4" Text="{Binding Increase, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" VerticalAlignment="Center" Margin="2" KeyDown="NewEntry_KeyDown" TextAlignment="Right" GotFocus="TextBox_GotFocus" />
+                    <TextBox Grid.Column="5" Text="{Binding Decrease, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" VerticalAlignment="Center" Margin="2" KeyDown="NewEntry_KeyDown" TextAlignment="Right" GotFocus="TextBox_GotFocus" />
 					<TextBlock Grid.Column="6" Margin="2" Text="{Binding Balance, StringFormat=\{0:0.00\}}" VerticalAlignment="Center" TextAlignment="Right"/>
                 </Grid>
 

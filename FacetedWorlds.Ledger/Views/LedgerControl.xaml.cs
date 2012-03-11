@@ -58,9 +58,9 @@ namespace FacetedWorlds.Ledger.Views
                 var viewModel = ForView.Unwrap<BookViewModel>(DataContext);
                 if (viewModel != null)
                 {
-                    DateTextBox.Focus();
                     viewModel.EnterRow();
                     LedgerScrollViewer.ScrollToBottom();
+                    DateTextBox.Focus();
                     return true;
                 }
             }

@@ -3,8 +3,10 @@ using System.Linq;
 using UpdateControls.Correspondence;
 using UpdateControls.Correspondence.Mementos;
 using UpdateControls.Correspondence.Strategy;
+using UpdateControls.Correspondence.Tasks;
 using System;
 using System.IO;
+using System.Threading;
 
 /**
 / For use with http://graphviz.org/
@@ -68,6 +70,16 @@ namespace FacetedWorlds.Ledger.Model
 				Identity fact = (Identity)obj;
 				_fieldSerializerByType[typeof(string)].WriteData(output, fact._anonymousId);
 			}
+
+            public CorrespondenceFact GetUnloadedInstance()
+            {
+                return Identity.GetUnloadedInstance();
+            }
+
+            public CorrespondenceFact GetNullInstance()
+            {
+                return Identity.GetNullInstance();
+            }
 		}
 
 		// Type
@@ -79,13 +91,51 @@ namespace FacetedWorlds.Ledger.Model
 			return _correspondenceFactType;
 		}
 
+        // Null and unloaded instances
+        public static Identity GetUnloadedInstance()
+        {
+            return new Identity((FactMemento)null) { IsLoaded = false };
+        }
+
+        public static Identity GetNullInstance()
+        {
+            return new Identity((FactMemento)null) { IsNull = true };
+        }
+
+        public Identity Ensure()
+        {
+            if (_loadedTask != null)
+            {
+                ManualResetEvent loaded = new ManualResetEvent(false);
+                Identity fact = null;
+                _loadedTask.ContinueWith(delegate(Task<CorrespondenceFact> t)
+                {
+                    fact = (Identity)t.Result;
+                    loaded.Set();
+                });
+                loaded.WaitOne();
+                return fact;
+            }
+            else
+                return this;
+        }
+
         // Roles
 
         // Queries
-        public static Query QueryActiveShares = new Query()
-            .JoinSuccessors(Share.RoleIdentity, Condition.WhereIsEmpty(Share.QueryIsActive)
-            )
-            ;
+        private static Query _cacheQueryActiveShares;
+
+        public static Query GetQueryActiveShares()
+		{
+            if (_cacheQueryActiveShares == null)
+            {
+			    _cacheQueryActiveShares = new Query()
+    				.JoinSuccessors(Share.GetRoleIdentity(), Condition.WhereIsEmpty(Share.GetQueryIsActive())
+				)
+                ;
+            }
+            return _cacheQueryActiveShares;
+		}
 
         // Predicates
 
@@ -115,7 +165,7 @@ namespace FacetedWorlds.Ledger.Model
         // Result initializer
         private void InitializeResults()
         {
-            _activeShares = new Result<Share>(this, QueryActiveShares);
+            _activeShares = new Result<Share>(this, GetQueryActiveShares(), Share.GetUnloadedInstance, Share.GetNullInstance);
         }
 
         // Predecessor access
@@ -127,7 +177,7 @@ namespace FacetedWorlds.Ledger.Model
         }
 
         // Query result access
-        public IEnumerable<Share> ActiveShares
+        public Result<Share> ActiveShares
         {
             get { return _activeShares; }
         }
@@ -169,6 +219,16 @@ namespace FacetedWorlds.Ledger.Model
 				Share fact = (Share)obj;
 				_fieldSerializerByType[typeof(Guid)].WriteData(output, fact._unique);
 			}
+
+            public CorrespondenceFact GetUnloadedInstance()
+            {
+                return Share.GetUnloadedInstance();
+            }
+
+            public CorrespondenceFact GetNullInstance()
+            {
+                return Share.GetNullInstance();
+            }
 		}
 
 		// Type
@@ -180,25 +240,79 @@ namespace FacetedWorlds.Ledger.Model
 			return _correspondenceFactType;
 		}
 
+        // Null and unloaded instances
+        public static Share GetUnloadedInstance()
+        {
+            return new Share((FactMemento)null) { IsLoaded = false };
+        }
+
+        public static Share GetNullInstance()
+        {
+            return new Share((FactMemento)null) { IsNull = true };
+        }
+
+        public Share Ensure()
+        {
+            if (_loadedTask != null)
+            {
+                ManualResetEvent loaded = new ManualResetEvent(false);
+                Share fact = null;
+                _loadedTask.ContinueWith(delegate(Task<CorrespondenceFact> t)
+                {
+                    fact = (Share)t.Result;
+                    loaded.Set();
+                });
+                loaded.WaitOne();
+                return fact;
+            }
+            else
+                return this;
+        }
+
         // Roles
-        public static Role RoleIdentity = new Role(new RoleMemento(
-			_correspondenceFactType,
-			"identity",
-			new CorrespondenceFactType("FacetedWorlds.Ledger.Model.Identity", 1),
-			true));
-        public static Role RoleCompany = new Role(new RoleMemento(
-			_correspondenceFactType,
-			"company",
-			new CorrespondenceFactType("FacetedWorlds.Ledger.Model.Company", 1),
-			false));
+        private static Role _cacheRoleIdentity;
+        public static Role GetRoleIdentity()
+        {
+            if (_cacheRoleIdentity == null)
+            {
+                _cacheRoleIdentity = new Role(new RoleMemento(
+			        _correspondenceFactType,
+			        "identity",
+			        Identity._correspondenceFactType,
+			        true));
+            }
+            return _cacheRoleIdentity;
+        }
+        private static Role _cacheRoleCompany;
+        public static Role GetRoleCompany()
+        {
+            if (_cacheRoleCompany == null)
+            {
+                _cacheRoleCompany = new Role(new RoleMemento(
+			        _correspondenceFactType,
+			        "company",
+			        Company._correspondenceFactType,
+			        false));
+            }
+            return _cacheRoleCompany;
+        }
 
         // Queries
-        public static Query QueryIsActive = new Query()
-            .JoinSuccessors(ShareRevoke.RoleShare)
-            ;
+        private static Query _cacheQueryIsActive;
+
+        public static Query GetQueryIsActive()
+		{
+            if (_cacheQueryIsActive == null)
+            {
+			    _cacheQueryIsActive = new Query()
+		    		.JoinSuccessors(ShareRevoke.GetRoleShare())
+                ;
+            }
+            return _cacheQueryIsActive;
+		}
 
         // Predicates
-        public static Condition IsActive = Condition.WhereIsEmpty(QueryIsActive);
+        public static Condition IsActive = Condition.WhereIsEmpty(GetQueryIsActive());
 
         // Predecessors
         private PredecessorObj<Identity> _identity;
@@ -219,16 +333,16 @@ namespace FacetedWorlds.Ledger.Model
         {
             _unique = Guid.NewGuid();
             InitializeResults();
-            _identity = new PredecessorObj<Identity>(this, RoleIdentity, identity);
-            _company = new PredecessorObj<Company>(this, RoleCompany, company);
+            _identity = new PredecessorObj<Identity>(this, GetRoleIdentity(), identity);
+            _company = new PredecessorObj<Company>(this, GetRoleCompany(), company);
         }
 
         // Hydration constructor
         private Share(FactMemento memento)
         {
             InitializeResults();
-            _identity = new PredecessorObj<Identity>(this, RoleIdentity, memento);
-            _company = new PredecessorObj<Company>(this, RoleCompany, memento);
+            _identity = new PredecessorObj<Identity>(this, GetRoleIdentity(), memento, Identity.GetUnloadedInstance, Identity.GetNullInstance);
+            _company = new PredecessorObj<Company>(this, GetRoleCompany(), memento, Company.GetUnloadedInstance, Company.GetNullInstance);
         }
 
         // Result initializer
@@ -239,11 +353,11 @@ namespace FacetedWorlds.Ledger.Model
         // Predecessor access
         public Identity Identity
         {
-            get { return _identity.Fact; }
+            get { return IsNull ? Identity.GetNullInstance() : _identity.Fact; }
         }
         public Company Company
         {
-            get { return _company.Fact; }
+            get { return IsNull ? Company.GetNullInstance() : _company.Fact; }
         }
 
         // Field access
@@ -272,13 +386,6 @@ namespace FacetedWorlds.Ledger.Model
 			{
 				ShareRevoke newFact = new ShareRevoke(memento);
 
-				// Create a memory stream from the memento data.
-				using (MemoryStream data = new MemoryStream(memento.Data))
-				{
-					using (BinaryReader output = new BinaryReader(data))
-					{
-					}
-				}
 
 				return newFact;
 			}
@@ -287,6 +394,16 @@ namespace FacetedWorlds.Ledger.Model
 			{
 				ShareRevoke fact = (ShareRevoke)obj;
 			}
+
+            public CorrespondenceFact GetUnloadedInstance()
+            {
+                return ShareRevoke.GetUnloadedInstance();
+            }
+
+            public CorrespondenceFact GetNullInstance()
+            {
+                return ShareRevoke.GetNullInstance();
+            }
 		}
 
 		// Type
@@ -298,12 +415,49 @@ namespace FacetedWorlds.Ledger.Model
 			return _correspondenceFactType;
 		}
 
+        // Null and unloaded instances
+        public static ShareRevoke GetUnloadedInstance()
+        {
+            return new ShareRevoke((FactMemento)null) { IsLoaded = false };
+        }
+
+        public static ShareRevoke GetNullInstance()
+        {
+            return new ShareRevoke((FactMemento)null) { IsNull = true };
+        }
+
+        public ShareRevoke Ensure()
+        {
+            if (_loadedTask != null)
+            {
+                ManualResetEvent loaded = new ManualResetEvent(false);
+                ShareRevoke fact = null;
+                _loadedTask.ContinueWith(delegate(Task<CorrespondenceFact> t)
+                {
+                    fact = (ShareRevoke)t.Result;
+                    loaded.Set();
+                });
+                loaded.WaitOne();
+                return fact;
+            }
+            else
+                return this;
+        }
+
         // Roles
-        public static Role RoleShare = new Role(new RoleMemento(
-			_correspondenceFactType,
-			"share",
-			new CorrespondenceFactType("FacetedWorlds.Ledger.Model.Share", 1),
-			false));
+        private static Role _cacheRoleShare;
+        public static Role GetRoleShare()
+        {
+            if (_cacheRoleShare == null)
+            {
+                _cacheRoleShare = new Role(new RoleMemento(
+			        _correspondenceFactType,
+			        "share",
+			        Share._correspondenceFactType,
+			        false));
+            }
+            return _cacheRoleShare;
+        }
 
         // Queries
 
@@ -322,14 +476,14 @@ namespace FacetedWorlds.Ledger.Model
             )
         {
             InitializeResults();
-            _share = new PredecessorObj<Share>(this, RoleShare, share);
+            _share = new PredecessorObj<Share>(this, GetRoleShare(), share);
         }
 
         // Hydration constructor
         private ShareRevoke(FactMemento memento)
         {
             InitializeResults();
-            _share = new PredecessorObj<Share>(this, RoleShare, memento);
+            _share = new PredecessorObj<Share>(this, GetRoleShare(), memento, Share.GetUnloadedInstance, Share.GetNullInstance);
         }
 
         // Result initializer
@@ -340,7 +494,7 @@ namespace FacetedWorlds.Ledger.Model
         // Predecessor access
         public Share Share
         {
-            get { return _share.Fact; }
+            get { return IsNull ? Share.GetNullInstance() : _share.Fact; }
         }
 
         // Field access
@@ -384,6 +538,16 @@ namespace FacetedWorlds.Ledger.Model
 				Company fact = (Company)obj;
 				_fieldSerializerByType[typeof(Guid)].WriteData(output, fact._unique);
 			}
+
+            public CorrespondenceFact GetUnloadedInstance()
+            {
+                return Company.GetUnloadedInstance();
+            }
+
+            public CorrespondenceFact GetNullInstance()
+            {
+                return Company.GetNullInstance();
+            }
 		}
 
 		// Type
@@ -395,17 +559,64 @@ namespace FacetedWorlds.Ledger.Model
 			return _correspondenceFactType;
 		}
 
+        // Null and unloaded instances
+        public static Company GetUnloadedInstance()
+        {
+            return new Company((FactMemento)null) { IsLoaded = false };
+        }
+
+        public static Company GetNullInstance()
+        {
+            return new Company((FactMemento)null) { IsNull = true };
+        }
+
+        public Company Ensure()
+        {
+            if (_loadedTask != null)
+            {
+                ManualResetEvent loaded = new ManualResetEvent(false);
+                Company fact = null;
+                _loadedTask.ContinueWith(delegate(Task<CorrespondenceFact> t)
+                {
+                    fact = (Company)t.Result;
+                    loaded.Set();
+                });
+                loaded.WaitOne();
+                return fact;
+            }
+            else
+                return this;
+        }
+
         // Roles
 
         // Queries
-        public static Query QueryName = new Query()
-            .JoinSuccessors(Company__name.RoleCompany, Condition.WhereIsEmpty(Company__name.QueryIsCurrent)
-            )
-            ;
-        public static Query QueryAccounts = new Query()
-            .JoinSuccessors(Account.RoleCompany, Condition.WhereIsEmpty(Account.QueryIsDeleted)
-            )
-            ;
+        private static Query _cacheQueryName;
+
+        public static Query GetQueryName()
+		{
+            if (_cacheQueryName == null)
+            {
+			    _cacheQueryName = new Query()
+    				.JoinSuccessors(Company__name.GetRoleCompany(), Condition.WhereIsEmpty(Company__name.GetQueryIsCurrent())
+				)
+                ;
+            }
+            return _cacheQueryName;
+		}
+        private static Query _cacheQueryAccounts;
+
+        public static Query GetQueryAccounts()
+		{
+            if (_cacheQueryAccounts == null)
+            {
+			    _cacheQueryAccounts = new Query()
+    				.JoinSuccessors(Account.GetRoleCompany(), Condition.WhereIsEmpty(Account.GetQueryIsDeleted())
+				)
+                ;
+            }
+            return _cacheQueryAccounts;
+		}
 
         // Predicates
 
@@ -437,8 +648,8 @@ namespace FacetedWorlds.Ledger.Model
         // Result initializer
         private void InitializeResults()
         {
-            _name = new Result<Company__name>(this, QueryName);
-            _accounts = new Result<Account>(this, QueryAccounts);
+            _name = new Result<Company__name>(this, GetQueryName(), Company__name.GetUnloadedInstance, Company__name.GetNullInstance);
+            _accounts = new Result<Account>(this, GetQueryAccounts(), Account.GetUnloadedInstance, Account.GetNullInstance);
         }
 
         // Predecessor access
@@ -448,18 +659,19 @@ namespace FacetedWorlds.Ledger.Model
 
 
         // Query result access
-        public IEnumerable<Account> Accounts
+        public Result<Account> Accounts
         {
             get { return _accounts; }
         }
 
         // Mutable property access
-        public Disputable<string> Name
+        public TransientDisputable<Company__name, string> Name
         {
-            get { return _name.Select(fact => fact.Value).AsDisputable(); }
+            get { return _name.AsTransientDisputable(fact => fact.Value); }
 			set
 			{
-				if (_name.Count() != 1 || !object.Equals(_name.Single().Value, value.Value))
+				var current = _name.Ensure().ToList();
+				if (current.Count != 1 || !object.Equals(current[0].Value, value.Value))
 				{
 					Community.AddFact(new Company__name(this, _name, value.Value));
 				}
@@ -501,6 +713,16 @@ namespace FacetedWorlds.Ledger.Model
 				Company__name fact = (Company__name)obj;
 				_fieldSerializerByType[typeof(string)].WriteData(output, fact._value);
 			}
+
+            public CorrespondenceFact GetUnloadedInstance()
+            {
+                return Company__name.GetUnloadedInstance();
+            }
+
+            public CorrespondenceFact GetNullInstance()
+            {
+                return Company__name.GetNullInstance();
+            }
 		}
 
 		// Type
@@ -512,25 +734,79 @@ namespace FacetedWorlds.Ledger.Model
 			return _correspondenceFactType;
 		}
 
+        // Null and unloaded instances
+        public static Company__name GetUnloadedInstance()
+        {
+            return new Company__name((FactMemento)null) { IsLoaded = false };
+        }
+
+        public static Company__name GetNullInstance()
+        {
+            return new Company__name((FactMemento)null) { IsNull = true };
+        }
+
+        public Company__name Ensure()
+        {
+            if (_loadedTask != null)
+            {
+                ManualResetEvent loaded = new ManualResetEvent(false);
+                Company__name fact = null;
+                _loadedTask.ContinueWith(delegate(Task<CorrespondenceFact> t)
+                {
+                    fact = (Company__name)t.Result;
+                    loaded.Set();
+                });
+                loaded.WaitOne();
+                return fact;
+            }
+            else
+                return this;
+        }
+
         // Roles
-        public static Role RoleCompany = new Role(new RoleMemento(
-			_correspondenceFactType,
-			"company",
-			new CorrespondenceFactType("FacetedWorlds.Ledger.Model.Company", 1),
-			true));
-        public static Role RolePrior = new Role(new RoleMemento(
-			_correspondenceFactType,
-			"prior",
-			new CorrespondenceFactType("FacetedWorlds.Ledger.Model.Company__name", 1),
-			false));
+        private static Role _cacheRoleCompany;
+        public static Role GetRoleCompany()
+        {
+            if (_cacheRoleCompany == null)
+            {
+                _cacheRoleCompany = new Role(new RoleMemento(
+			        _correspondenceFactType,
+			        "company",
+			        Company._correspondenceFactType,
+			        true));
+            }
+            return _cacheRoleCompany;
+        }
+        private static Role _cacheRolePrior;
+        public static Role GetRolePrior()
+        {
+            if (_cacheRolePrior == null)
+            {
+                _cacheRolePrior = new Role(new RoleMemento(
+			        _correspondenceFactType,
+			        "prior",
+			        Company__name._correspondenceFactType,
+			        false));
+            }
+            return _cacheRolePrior;
+        }
 
         // Queries
-        public static Query QueryIsCurrent = new Query()
-            .JoinSuccessors(Company__name.RolePrior)
-            ;
+        private static Query _cacheQueryIsCurrent;
+
+        public static Query GetQueryIsCurrent()
+		{
+            if (_cacheQueryIsCurrent == null)
+            {
+			    _cacheQueryIsCurrent = new Query()
+		    		.JoinSuccessors(Company__name.GetRolePrior())
+                ;
+            }
+            return _cacheQueryIsCurrent;
+		}
 
         // Predicates
-        public static Condition IsCurrent = Condition.WhereIsEmpty(QueryIsCurrent);
+        public static Condition IsCurrent = Condition.WhereIsEmpty(GetQueryIsCurrent());
 
         // Predecessors
         private PredecessorObj<Company> _company;
@@ -549,8 +825,8 @@ namespace FacetedWorlds.Ledger.Model
             )
         {
             InitializeResults();
-            _company = new PredecessorObj<Company>(this, RoleCompany, company);
-            _prior = new PredecessorList<Company__name>(this, RolePrior, prior);
+            _company = new PredecessorObj<Company>(this, GetRoleCompany(), company);
+            _prior = new PredecessorList<Company__name>(this, GetRolePrior(), prior);
             _value = value;
         }
 
@@ -558,8 +834,8 @@ namespace FacetedWorlds.Ledger.Model
         private Company__name(FactMemento memento)
         {
             InitializeResults();
-            _company = new PredecessorObj<Company>(this, RoleCompany, memento);
-            _prior = new PredecessorList<Company__name>(this, RolePrior, memento);
+            _company = new PredecessorObj<Company>(this, GetRoleCompany(), memento, Company.GetUnloadedInstance, Company.GetNullInstance);
+            _prior = new PredecessorList<Company__name>(this, GetRolePrior(), memento, Company__name.GetUnloadedInstance, Company__name.GetNullInstance);
         }
 
         // Result initializer
@@ -570,13 +846,13 @@ namespace FacetedWorlds.Ledger.Model
         // Predecessor access
         public Company Company
         {
-            get { return _company.Fact; }
+            get { return IsNull ? Company.GetNullInstance() : _company.Fact; }
         }
-        public IEnumerable<Company__name> Prior
+        public PredecessorList<Company__name> Prior
         {
             get { return _prior; }
         }
-     
+
         // Field access
         public string Value
         {
@@ -622,6 +898,16 @@ namespace FacetedWorlds.Ledger.Model
 				Year fact = (Year)obj;
 				_fieldSerializerByType[typeof(int)].WriteData(output, fact._calendarYear);
 			}
+
+            public CorrespondenceFact GetUnloadedInstance()
+            {
+                return Year.GetUnloadedInstance();
+            }
+
+            public CorrespondenceFact GetNullInstance()
+            {
+                return Year.GetNullInstance();
+            }
 		}
 
 		// Type
@@ -633,12 +919,49 @@ namespace FacetedWorlds.Ledger.Model
 			return _correspondenceFactType;
 		}
 
+        // Null and unloaded instances
+        public static Year GetUnloadedInstance()
+        {
+            return new Year((FactMemento)null) { IsLoaded = false };
+        }
+
+        public static Year GetNullInstance()
+        {
+            return new Year((FactMemento)null) { IsNull = true };
+        }
+
+        public Year Ensure()
+        {
+            if (_loadedTask != null)
+            {
+                ManualResetEvent loaded = new ManualResetEvent(false);
+                Year fact = null;
+                _loadedTask.ContinueWith(delegate(Task<CorrespondenceFact> t)
+                {
+                    fact = (Year)t.Result;
+                    loaded.Set();
+                });
+                loaded.WaitOne();
+                return fact;
+            }
+            else
+                return this;
+        }
+
         // Roles
-        public static Role RoleCompany = new Role(new RoleMemento(
-			_correspondenceFactType,
-			"company",
-			new CorrespondenceFactType("FacetedWorlds.Ledger.Model.Company", 1),
-			true));
+        private static Role _cacheRoleCompany;
+        public static Role GetRoleCompany()
+        {
+            if (_cacheRoleCompany == null)
+            {
+                _cacheRoleCompany = new Role(new RoleMemento(
+			        _correspondenceFactType,
+			        "company",
+			        Company._correspondenceFactType,
+			        true));
+            }
+            return _cacheRoleCompany;
+        }
 
         // Queries
 
@@ -659,7 +982,7 @@ namespace FacetedWorlds.Ledger.Model
             )
         {
             InitializeResults();
-            _company = new PredecessorObj<Company>(this, RoleCompany, company);
+            _company = new PredecessorObj<Company>(this, GetRoleCompany(), company);
             _calendarYear = calendarYear;
         }
 
@@ -667,7 +990,7 @@ namespace FacetedWorlds.Ledger.Model
         private Year(FactMemento memento)
         {
             InitializeResults();
-            _company = new PredecessorObj<Company>(this, RoleCompany, memento);
+            _company = new PredecessorObj<Company>(this, GetRoleCompany(), memento, Company.GetUnloadedInstance, Company.GetNullInstance);
         }
 
         // Result initializer
@@ -678,7 +1001,7 @@ namespace FacetedWorlds.Ledger.Model
         // Predecessor access
         public Company Company
         {
-            get { return _company.Fact; }
+            get { return IsNull ? Company.GetNullInstance() : _company.Fact; }
         }
 
         // Field access
@@ -728,6 +1051,16 @@ namespace FacetedWorlds.Ledger.Model
 				_fieldSerializerByType[typeof(Guid)].WriteData(output, fact._unique);
 				_fieldSerializerByType[typeof(int)].WriteData(output, fact._type);
 			}
+
+            public CorrespondenceFact GetUnloadedInstance()
+            {
+                return Account.GetUnloadedInstance();
+            }
+
+            public CorrespondenceFact GetNullInstance()
+            {
+                return Account.GetNullInstance();
+            }
 		}
 
 		// Type
@@ -739,24 +1072,79 @@ namespace FacetedWorlds.Ledger.Model
 			return _correspondenceFactType;
 		}
 
+        // Null and unloaded instances
+        public static Account GetUnloadedInstance()
+        {
+            return new Account((FactMemento)null) { IsLoaded = false };
+        }
+
+        public static Account GetNullInstance()
+        {
+            return new Account((FactMemento)null) { IsNull = true };
+        }
+
+        public Account Ensure()
+        {
+            if (_loadedTask != null)
+            {
+                ManualResetEvent loaded = new ManualResetEvent(false);
+                Account fact = null;
+                _loadedTask.ContinueWith(delegate(Task<CorrespondenceFact> t)
+                {
+                    fact = (Account)t.Result;
+                    loaded.Set();
+                });
+                loaded.WaitOne();
+                return fact;
+            }
+            else
+                return this;
+        }
+
         // Roles
-        public static Role RoleCompany = new Role(new RoleMemento(
-			_correspondenceFactType,
-			"company",
-			new CorrespondenceFactType("FacetedWorlds.Ledger.Model.Company", 1),
-			true));
+        private static Role _cacheRoleCompany;
+        public static Role GetRoleCompany()
+        {
+            if (_cacheRoleCompany == null)
+            {
+                _cacheRoleCompany = new Role(new RoleMemento(
+			        _correspondenceFactType,
+			        "company",
+			        Company._correspondenceFactType,
+			        true));
+            }
+            return _cacheRoleCompany;
+        }
 
         // Queries
-        public static Query QueryName = new Query()
-            .JoinSuccessors(Account__name.RoleAccount, Condition.WhereIsEmpty(Account__name.QueryIsCurrent)
-            )
-            ;
-        public static Query QueryIsDeleted = new Query()
-            .JoinSuccessors(AccountDelete.RoleAccount)
-            ;
+        private static Query _cacheQueryName;
+
+        public static Query GetQueryName()
+		{
+            if (_cacheQueryName == null)
+            {
+			    _cacheQueryName = new Query()
+    				.JoinSuccessors(Account__name.GetRoleAccount(), Condition.WhereIsEmpty(Account__name.GetQueryIsCurrent())
+				)
+                ;
+            }
+            return _cacheQueryName;
+		}
+        private static Query _cacheQueryIsDeleted;
+
+        public static Query GetQueryIsDeleted()
+		{
+            if (_cacheQueryIsDeleted == null)
+            {
+			    _cacheQueryIsDeleted = new Query()
+		    		.JoinSuccessors(AccountDelete.GetRoleAccount())
+                ;
+            }
+            return _cacheQueryIsDeleted;
+		}
 
         // Predicates
-        public static Condition IsDeleted = Condition.WhereIsNotEmpty(QueryIsDeleted);
+        public static Condition IsDeleted = Condition.WhereIsNotEmpty(GetQueryIsDeleted());
 
         // Predecessors
         private PredecessorObj<Company> _company;
@@ -778,7 +1166,7 @@ namespace FacetedWorlds.Ledger.Model
         {
             _unique = Guid.NewGuid();
             InitializeResults();
-            _company = new PredecessorObj<Company>(this, RoleCompany, company);
+            _company = new PredecessorObj<Company>(this, GetRoleCompany(), company);
             _type = type;
         }
 
@@ -786,19 +1174,19 @@ namespace FacetedWorlds.Ledger.Model
         private Account(FactMemento memento)
         {
             InitializeResults();
-            _company = new PredecessorObj<Company>(this, RoleCompany, memento);
+            _company = new PredecessorObj<Company>(this, GetRoleCompany(), memento, Company.GetUnloadedInstance, Company.GetNullInstance);
         }
 
         // Result initializer
         private void InitializeResults()
         {
-            _name = new Result<Account__name>(this, QueryName);
+            _name = new Result<Account__name>(this, GetQueryName(), Account__name.GetUnloadedInstance, Account__name.GetNullInstance);
         }
 
         // Predecessor access
         public Company Company
         {
-            get { return _company.Fact; }
+            get { return IsNull ? Company.GetNullInstance() : _company.Fact; }
         }
 
         // Field access
@@ -812,12 +1200,13 @@ namespace FacetedWorlds.Ledger.Model
         // Query result access
 
         // Mutable property access
-        public Disputable<string> Name
+        public TransientDisputable<Account__name, string> Name
         {
-            get { return _name.Select(fact => fact.Value).AsDisputable(); }
+            get { return _name.AsTransientDisputable(fact => fact.Value); }
 			set
 			{
-				if (_name.Count() != 1 || !object.Equals(_name.Single().Value, value.Value))
+				var current = _name.Ensure().ToList();
+				if (current.Count != 1 || !object.Equals(current[0].Value, value.Value))
 				{
 					Community.AddFact(new Account__name(this, _name, value.Value));
 				}
@@ -859,6 +1248,16 @@ namespace FacetedWorlds.Ledger.Model
 				Account__name fact = (Account__name)obj;
 				_fieldSerializerByType[typeof(string)].WriteData(output, fact._value);
 			}
+
+            public CorrespondenceFact GetUnloadedInstance()
+            {
+                return Account__name.GetUnloadedInstance();
+            }
+
+            public CorrespondenceFact GetNullInstance()
+            {
+                return Account__name.GetNullInstance();
+            }
 		}
 
 		// Type
@@ -870,25 +1269,79 @@ namespace FacetedWorlds.Ledger.Model
 			return _correspondenceFactType;
 		}
 
+        // Null and unloaded instances
+        public static Account__name GetUnloadedInstance()
+        {
+            return new Account__name((FactMemento)null) { IsLoaded = false };
+        }
+
+        public static Account__name GetNullInstance()
+        {
+            return new Account__name((FactMemento)null) { IsNull = true };
+        }
+
+        public Account__name Ensure()
+        {
+            if (_loadedTask != null)
+            {
+                ManualResetEvent loaded = new ManualResetEvent(false);
+                Account__name fact = null;
+                _loadedTask.ContinueWith(delegate(Task<CorrespondenceFact> t)
+                {
+                    fact = (Account__name)t.Result;
+                    loaded.Set();
+                });
+                loaded.WaitOne();
+                return fact;
+            }
+            else
+                return this;
+        }
+
         // Roles
-        public static Role RoleAccount = new Role(new RoleMemento(
-			_correspondenceFactType,
-			"account",
-			new CorrespondenceFactType("FacetedWorlds.Ledger.Model.Account", 1),
-			false));
-        public static Role RolePrior = new Role(new RoleMemento(
-			_correspondenceFactType,
-			"prior",
-			new CorrespondenceFactType("FacetedWorlds.Ledger.Model.Account__name", 1),
-			false));
+        private static Role _cacheRoleAccount;
+        public static Role GetRoleAccount()
+        {
+            if (_cacheRoleAccount == null)
+            {
+                _cacheRoleAccount = new Role(new RoleMemento(
+			        _correspondenceFactType,
+			        "account",
+			        Account._correspondenceFactType,
+			        false));
+            }
+            return _cacheRoleAccount;
+        }
+        private static Role _cacheRolePrior;
+        public static Role GetRolePrior()
+        {
+            if (_cacheRolePrior == null)
+            {
+                _cacheRolePrior = new Role(new RoleMemento(
+			        _correspondenceFactType,
+			        "prior",
+			        Account__name._correspondenceFactType,
+			        false));
+            }
+            return _cacheRolePrior;
+        }
 
         // Queries
-        public static Query QueryIsCurrent = new Query()
-            .JoinSuccessors(Account__name.RolePrior)
-            ;
+        private static Query _cacheQueryIsCurrent;
+
+        public static Query GetQueryIsCurrent()
+		{
+            if (_cacheQueryIsCurrent == null)
+            {
+			    _cacheQueryIsCurrent = new Query()
+		    		.JoinSuccessors(Account__name.GetRolePrior())
+                ;
+            }
+            return _cacheQueryIsCurrent;
+		}
 
         // Predicates
-        public static Condition IsCurrent = Condition.WhereIsEmpty(QueryIsCurrent);
+        public static Condition IsCurrent = Condition.WhereIsEmpty(GetQueryIsCurrent());
 
         // Predecessors
         private PredecessorObj<Account> _account;
@@ -907,8 +1360,8 @@ namespace FacetedWorlds.Ledger.Model
             )
         {
             InitializeResults();
-            _account = new PredecessorObj<Account>(this, RoleAccount, account);
-            _prior = new PredecessorList<Account__name>(this, RolePrior, prior);
+            _account = new PredecessorObj<Account>(this, GetRoleAccount(), account);
+            _prior = new PredecessorList<Account__name>(this, GetRolePrior(), prior);
             _value = value;
         }
 
@@ -916,8 +1369,8 @@ namespace FacetedWorlds.Ledger.Model
         private Account__name(FactMemento memento)
         {
             InitializeResults();
-            _account = new PredecessorObj<Account>(this, RoleAccount, memento);
-            _prior = new PredecessorList<Account__name>(this, RolePrior, memento);
+            _account = new PredecessorObj<Account>(this, GetRoleAccount(), memento, Account.GetUnloadedInstance, Account.GetNullInstance);
+            _prior = new PredecessorList<Account__name>(this, GetRolePrior(), memento, Account__name.GetUnloadedInstance, Account__name.GetNullInstance);
         }
 
         // Result initializer
@@ -928,13 +1381,13 @@ namespace FacetedWorlds.Ledger.Model
         // Predecessor access
         public Account Account
         {
-            get { return _account.Fact; }
+            get { return IsNull ? Account.GetNullInstance() : _account.Fact; }
         }
-        public IEnumerable<Account__name> Prior
+        public PredecessorList<Account__name> Prior
         {
             get { return _prior; }
         }
-     
+
         // Field access
         public string Value
         {
@@ -963,13 +1416,6 @@ namespace FacetedWorlds.Ledger.Model
 			{
 				AccountDelete newFact = new AccountDelete(memento);
 
-				// Create a memory stream from the memento data.
-				using (MemoryStream data = new MemoryStream(memento.Data))
-				{
-					using (BinaryReader output = new BinaryReader(data))
-					{
-					}
-				}
 
 				return newFact;
 			}
@@ -978,6 +1424,16 @@ namespace FacetedWorlds.Ledger.Model
 			{
 				AccountDelete fact = (AccountDelete)obj;
 			}
+
+            public CorrespondenceFact GetUnloadedInstance()
+            {
+                return AccountDelete.GetUnloadedInstance();
+            }
+
+            public CorrespondenceFact GetNullInstance()
+            {
+                return AccountDelete.GetNullInstance();
+            }
 		}
 
 		// Type
@@ -989,12 +1445,49 @@ namespace FacetedWorlds.Ledger.Model
 			return _correspondenceFactType;
 		}
 
+        // Null and unloaded instances
+        public static AccountDelete GetUnloadedInstance()
+        {
+            return new AccountDelete((FactMemento)null) { IsLoaded = false };
+        }
+
+        public static AccountDelete GetNullInstance()
+        {
+            return new AccountDelete((FactMemento)null) { IsNull = true };
+        }
+
+        public AccountDelete Ensure()
+        {
+            if (_loadedTask != null)
+            {
+                ManualResetEvent loaded = new ManualResetEvent(false);
+                AccountDelete fact = null;
+                _loadedTask.ContinueWith(delegate(Task<CorrespondenceFact> t)
+                {
+                    fact = (AccountDelete)t.Result;
+                    loaded.Set();
+                });
+                loaded.WaitOne();
+                return fact;
+            }
+            else
+                return this;
+        }
+
         // Roles
-        public static Role RoleAccount = new Role(new RoleMemento(
-			_correspondenceFactType,
-			"account",
-			new CorrespondenceFactType("FacetedWorlds.Ledger.Model.Account", 1),
-			false));
+        private static Role _cacheRoleAccount;
+        public static Role GetRoleAccount()
+        {
+            if (_cacheRoleAccount == null)
+            {
+                _cacheRoleAccount = new Role(new RoleMemento(
+			        _correspondenceFactType,
+			        "account",
+			        Account._correspondenceFactType,
+			        false));
+            }
+            return _cacheRoleAccount;
+        }
 
         // Queries
 
@@ -1013,14 +1506,14 @@ namespace FacetedWorlds.Ledger.Model
             )
         {
             InitializeResults();
-            _account = new PredecessorObj<Account>(this, RoleAccount, account);
+            _account = new PredecessorObj<Account>(this, GetRoleAccount(), account);
         }
 
         // Hydration constructor
         private AccountDelete(FactMemento memento)
         {
             InitializeResults();
-            _account = new PredecessorObj<Account>(this, RoleAccount, memento);
+            _account = new PredecessorObj<Account>(this, GetRoleAccount(), memento, Account.GetUnloadedInstance, Account.GetNullInstance);
         }
 
         // Result initializer
@@ -1031,7 +1524,7 @@ namespace FacetedWorlds.Ledger.Model
         // Predecessor access
         public Account Account
         {
-            get { return _account.Fact; }
+            get { return IsNull ? Account.GetNullInstance() : _account.Fact; }
         }
 
         // Field access
@@ -1058,13 +1551,6 @@ namespace FacetedWorlds.Ledger.Model
 			{
 				Book newFact = new Book(memento);
 
-				// Create a memory stream from the memento data.
-				using (MemoryStream data = new MemoryStream(memento.Data))
-				{
-					using (BinaryReader output = new BinaryReader(data))
-					{
-					}
-				}
 
 				return newFact;
 			}
@@ -1073,6 +1559,16 @@ namespace FacetedWorlds.Ledger.Model
 			{
 				Book fact = (Book)obj;
 			}
+
+            public CorrespondenceFact GetUnloadedInstance()
+            {
+                return Book.GetUnloadedInstance();
+            }
+
+            public CorrespondenceFact GetNullInstance()
+            {
+                return Book.GetNullInstance();
+            }
 		}
 
 		// Type
@@ -1084,27 +1580,90 @@ namespace FacetedWorlds.Ledger.Model
 			return _correspondenceFactType;
 		}
 
+        // Null and unloaded instances
+        public static Book GetUnloadedInstance()
+        {
+            return new Book((FactMemento)null) { IsLoaded = false };
+        }
+
+        public static Book GetNullInstance()
+        {
+            return new Book((FactMemento)null) { IsNull = true };
+        }
+
+        public Book Ensure()
+        {
+            if (_loadedTask != null)
+            {
+                ManualResetEvent loaded = new ManualResetEvent(false);
+                Book fact = null;
+                _loadedTask.ContinueWith(delegate(Task<CorrespondenceFact> t)
+                {
+                    fact = (Book)t.Result;
+                    loaded.Set();
+                });
+                loaded.WaitOne();
+                return fact;
+            }
+            else
+                return this;
+        }
+
         // Roles
-        public static Role RoleAccount = new Role(new RoleMemento(
-			_correspondenceFactType,
-			"account",
-			new CorrespondenceFactType("FacetedWorlds.Ledger.Model.Account", 1),
-			false));
-        public static Role RoleYear = new Role(new RoleMemento(
-			_correspondenceFactType,
-			"year",
-			new CorrespondenceFactType("FacetedWorlds.Ledger.Model.Year", 1),
-			false));
+        private static Role _cacheRoleAccount;
+        public static Role GetRoleAccount()
+        {
+            if (_cacheRoleAccount == null)
+            {
+                _cacheRoleAccount = new Role(new RoleMemento(
+			        _correspondenceFactType,
+			        "account",
+			        Account._correspondenceFactType,
+			        false));
+            }
+            return _cacheRoleAccount;
+        }
+        private static Role _cacheRoleYear;
+        public static Role GetRoleYear()
+        {
+            if (_cacheRoleYear == null)
+            {
+                _cacheRoleYear = new Role(new RoleMemento(
+			        _correspondenceFactType,
+			        "year",
+			        Year._correspondenceFactType,
+			        false));
+            }
+            return _cacheRoleYear;
+        }
 
         // Queries
-        public static Query QueryCredits = new Query()
-            .JoinSuccessors(Entry.RoleCredit, Condition.WhereIsEmpty(Entry.QueryIsVoided)
-            )
-            ;
-        public static Query QueryDebits = new Query()
-            .JoinSuccessors(Entry.RoleDebit, Condition.WhereIsEmpty(Entry.QueryIsVoided)
-            )
-            ;
+        private static Query _cacheQueryCredits;
+
+        public static Query GetQueryCredits()
+		{
+            if (_cacheQueryCredits == null)
+            {
+			    _cacheQueryCredits = new Query()
+    				.JoinSuccessors(Entry.GetRoleCredit(), Condition.WhereIsEmpty(Entry.GetQueryIsVoided())
+				)
+                ;
+            }
+            return _cacheQueryCredits;
+		}
+        private static Query _cacheQueryDebits;
+
+        public static Query GetQueryDebits()
+		{
+            if (_cacheQueryDebits == null)
+            {
+			    _cacheQueryDebits = new Query()
+    				.JoinSuccessors(Entry.GetRoleDebit(), Condition.WhereIsEmpty(Entry.GetQueryIsVoided())
+				)
+                ;
+            }
+            return _cacheQueryDebits;
+		}
 
         // Predicates
 
@@ -1125,43 +1684,43 @@ namespace FacetedWorlds.Ledger.Model
             )
         {
             InitializeResults();
-            _account = new PredecessorObj<Account>(this, RoleAccount, account);
-            _year = new PredecessorObj<Year>(this, RoleYear, year);
+            _account = new PredecessorObj<Account>(this, GetRoleAccount(), account);
+            _year = new PredecessorObj<Year>(this, GetRoleYear(), year);
         }
 
         // Hydration constructor
         private Book(FactMemento memento)
         {
             InitializeResults();
-            _account = new PredecessorObj<Account>(this, RoleAccount, memento);
-            _year = new PredecessorObj<Year>(this, RoleYear, memento);
+            _account = new PredecessorObj<Account>(this, GetRoleAccount(), memento, Account.GetUnloadedInstance, Account.GetNullInstance);
+            _year = new PredecessorObj<Year>(this, GetRoleYear(), memento, Year.GetUnloadedInstance, Year.GetNullInstance);
         }
 
         // Result initializer
         private void InitializeResults()
         {
-            _credits = new Result<Entry>(this, QueryCredits);
-            _debits = new Result<Entry>(this, QueryDebits);
+            _credits = new Result<Entry>(this, GetQueryCredits(), Entry.GetUnloadedInstance, Entry.GetNullInstance);
+            _debits = new Result<Entry>(this, GetQueryDebits(), Entry.GetUnloadedInstance, Entry.GetNullInstance);
         }
 
         // Predecessor access
         public Account Account
         {
-            get { return _account.Fact; }
+            get { return IsNull ? Account.GetNullInstance() : _account.Fact; }
         }
         public Year Year
         {
-            get { return _year.Fact; }
+            get { return IsNull ? Year.GetNullInstance() : _year.Fact; }
         }
 
         // Field access
 
         // Query result access
-        public IEnumerable<Entry> Credits
+        public Result<Entry> Credits
         {
             get { return _credits; }
         }
-        public IEnumerable<Entry> Debits
+        public Result<Entry> Debits
         {
             get { return _debits; }
         }
@@ -1192,8 +1751,10 @@ namespace FacetedWorlds.Ledger.Model
 					using (BinaryReader output = new BinaryReader(data))
 					{
 						newFact._entryDate = (DateTime)_fieldSerializerByType[typeof(DateTime)].ReadData(output);
+						newFact._entryDatePadding = (byte)_fieldSerializerByType[typeof(byte)].ReadData(output);
 						newFact._amount = (float)_fieldSerializerByType[typeof(float)].ReadData(output);
 						newFact._created = (DateTime)_fieldSerializerByType[typeof(DateTime)].ReadData(output);
+						newFact._createdPadding = (byte)_fieldSerializerByType[typeof(byte)].ReadData(output);
 					}
 				}
 
@@ -1204,9 +1765,21 @@ namespace FacetedWorlds.Ledger.Model
 			{
 				Entry fact = (Entry)obj;
 				_fieldSerializerByType[typeof(DateTime)].WriteData(output, fact._entryDate);
+				_fieldSerializerByType[typeof(byte)].WriteData(output, fact._entryDatePadding);
 				_fieldSerializerByType[typeof(float)].WriteData(output, fact._amount);
 				_fieldSerializerByType[typeof(DateTime)].WriteData(output, fact._created);
+				_fieldSerializerByType[typeof(byte)].WriteData(output, fact._createdPadding);
 			}
+
+            public CorrespondenceFact GetUnloadedInstance()
+            {
+                return Entry.GetUnloadedInstance();
+            }
+
+            public CorrespondenceFact GetNullInstance()
+            {
+                return Entry.GetNullInstance();
+            }
 		}
 
 		// Type
@@ -1218,33 +1791,105 @@ namespace FacetedWorlds.Ledger.Model
 			return _correspondenceFactType;
 		}
 
+        // Null and unloaded instances
+        public static Entry GetUnloadedInstance()
+        {
+            return new Entry((FactMemento)null) { IsLoaded = false };
+        }
+
+        public static Entry GetNullInstance()
+        {
+            return new Entry((FactMemento)null) { IsNull = true };
+        }
+
+        public Entry Ensure()
+        {
+            if (_loadedTask != null)
+            {
+                ManualResetEvent loaded = new ManualResetEvent(false);
+                Entry fact = null;
+                _loadedTask.ContinueWith(delegate(Task<CorrespondenceFact> t)
+                {
+                    fact = (Entry)t.Result;
+                    loaded.Set();
+                });
+                loaded.WaitOne();
+                return fact;
+            }
+            else
+                return this;
+        }
+
         // Roles
-        public static Role RoleCredit = new Role(new RoleMemento(
-			_correspondenceFactType,
-			"credit",
-			new CorrespondenceFactType("FacetedWorlds.Ledger.Model.Book", 1),
-			false));
-        public static Role RoleDebit = new Role(new RoleMemento(
-			_correspondenceFactType,
-			"debit",
-			new CorrespondenceFactType("FacetedWorlds.Ledger.Model.Book", 1),
-			false));
+        private static Role _cacheRoleCredit;
+        public static Role GetRoleCredit()
+        {
+            if (_cacheRoleCredit == null)
+            {
+                _cacheRoleCredit = new Role(new RoleMemento(
+			        _correspondenceFactType,
+			        "credit",
+			        Book._correspondenceFactType,
+			        false));
+            }
+            return _cacheRoleCredit;
+        }
+        private static Role _cacheRoleDebit;
+        public static Role GetRoleDebit()
+        {
+            if (_cacheRoleDebit == null)
+            {
+                _cacheRoleDebit = new Role(new RoleMemento(
+			        _correspondenceFactType,
+			        "debit",
+			        Book._correspondenceFactType,
+			        false));
+            }
+            return _cacheRoleDebit;
+        }
 
         // Queries
-        public static Query QueryId = new Query()
-            .JoinSuccessors(Entry__id.RoleEntry, Condition.WhereIsEmpty(Entry__id.QueryIsCurrent)
-            )
-            ;
-        public static Query QueryDescription = new Query()
-            .JoinSuccessors(Entry__description.RoleEntry, Condition.WhereIsEmpty(Entry__description.QueryIsCurrent)
-            )
-            ;
-        public static Query QueryIsVoided = new Query()
-            .JoinSuccessors(EntryVoid.RoleEntry)
-            ;
+        private static Query _cacheQueryId;
+
+        public static Query GetQueryId()
+		{
+            if (_cacheQueryId == null)
+            {
+			    _cacheQueryId = new Query()
+    				.JoinSuccessors(Entry__id.GetRoleEntry(), Condition.WhereIsEmpty(Entry__id.GetQueryIsCurrent())
+				)
+                ;
+            }
+            return _cacheQueryId;
+		}
+        private static Query _cacheQueryDescription;
+
+        public static Query GetQueryDescription()
+		{
+            if (_cacheQueryDescription == null)
+            {
+			    _cacheQueryDescription = new Query()
+    				.JoinSuccessors(Entry__description.GetRoleEntry(), Condition.WhereIsEmpty(Entry__description.GetQueryIsCurrent())
+				)
+                ;
+            }
+            return _cacheQueryDescription;
+		}
+        private static Query _cacheQueryIsVoided;
+
+        public static Query GetQueryIsVoided()
+		{
+            if (_cacheQueryIsVoided == null)
+            {
+			    _cacheQueryIsVoided = new Query()
+		    		.JoinSuccessors(EntryVoid.GetRoleEntry())
+                ;
+            }
+            return _cacheQueryIsVoided;
+		}
 
         // Predicates
-        public static Condition IsVoided = Condition.WhereIsNotEmpty(QueryIsVoided);
+        public static Condition IsVoided = Condition.WhereIsNotEmpty(GetQueryIsVoided());
 
         // Predecessors
         private PredecessorObj<Book> _credit;
@@ -1252,8 +1897,10 @@ namespace FacetedWorlds.Ledger.Model
 
         // Fields
         private DateTime _entryDate;
+        private byte _entryDatePadding;
         private float _amount;
         private DateTime _created;
+        private byte _createdPadding;
 
         // Results
         private Result<Entry__id> _id;
@@ -1264,47 +1911,55 @@ namespace FacetedWorlds.Ledger.Model
             Book credit
             ,Book debit
             ,DateTime entryDate
+            ,byte entryDatePadding
             ,float amount
             ,DateTime created
+            ,byte createdPadding
             )
         {
             InitializeResults();
-            _credit = new PredecessorObj<Book>(this, RoleCredit, credit);
-            _debit = new PredecessorObj<Book>(this, RoleDebit, debit);
+            _credit = new PredecessorObj<Book>(this, GetRoleCredit(), credit);
+            _debit = new PredecessorObj<Book>(this, GetRoleDebit(), debit);
             _entryDate = entryDate;
+            _entryDatePadding = entryDatePadding;
             _amount = amount;
             _created = created;
+            _createdPadding = createdPadding;
         }
 
         // Hydration constructor
         private Entry(FactMemento memento)
         {
             InitializeResults();
-            _credit = new PredecessorObj<Book>(this, RoleCredit, memento);
-            _debit = new PredecessorObj<Book>(this, RoleDebit, memento);
+            _credit = new PredecessorObj<Book>(this, GetRoleCredit(), memento, Book.GetUnloadedInstance, Book.GetNullInstance);
+            _debit = new PredecessorObj<Book>(this, GetRoleDebit(), memento, Book.GetUnloadedInstance, Book.GetNullInstance);
         }
 
         // Result initializer
         private void InitializeResults()
         {
-            _id = new Result<Entry__id>(this, QueryId);
-            _description = new Result<Entry__description>(this, QueryDescription);
+            _id = new Result<Entry__id>(this, GetQueryId(), Entry__id.GetUnloadedInstance, Entry__id.GetNullInstance);
+            _description = new Result<Entry__description>(this, GetQueryDescription(), Entry__description.GetUnloadedInstance, Entry__description.GetNullInstance);
         }
 
         // Predecessor access
         public Book Credit
         {
-            get { return _credit.Fact; }
+            get { return IsNull ? Book.GetNullInstance() : _credit.Fact; }
         }
         public Book Debit
         {
-            get { return _debit.Fact; }
+            get { return IsNull ? Book.GetNullInstance() : _debit.Fact; }
         }
 
         // Field access
         public DateTime EntryDate
         {
             get { return _entryDate; }
+        }
+        public byte EntryDatePadding
+        {
+            get { return _entryDatePadding; }
         }
         public float Amount
         {
@@ -1314,27 +1969,33 @@ namespace FacetedWorlds.Ledger.Model
         {
             get { return _created; }
         }
+        public byte CreatedPadding
+        {
+            get { return _createdPadding; }
+        }
 
         // Query result access
 
         // Mutable property access
-        public Disputable<string> Id
+        public TransientDisputable<Entry__id, string> Id
         {
-            get { return _id.Select(fact => fact.Value).AsDisputable(); }
+            get { return _id.AsTransientDisputable(fact => fact.Value); }
 			set
 			{
-				if (_id.Count() != 1 || !object.Equals(_id.Single().Value, value.Value))
+				var current = _id.Ensure().ToList();
+				if (current.Count != 1 || !object.Equals(current[0].Value, value.Value))
 				{
 					Community.AddFact(new Entry__id(this, _id, value.Value));
 				}
 			}
         }
-        public Disputable<string> Description
+        public TransientDisputable<Entry__description, string> Description
         {
-            get { return _description.Select(fact => fact.Value).AsDisputable(); }
+            get { return _description.AsTransientDisputable(fact => fact.Value); }
 			set
 			{
-				if (_description.Count() != 1 || !object.Equals(_description.Single().Value, value.Value))
+				var current = _description.Ensure().ToList();
+				if (current.Count != 1 || !object.Equals(current[0].Value, value.Value))
 				{
 					Community.AddFact(new Entry__description(this, _description, value.Value));
 				}
@@ -1376,6 +2037,16 @@ namespace FacetedWorlds.Ledger.Model
 				Entry__id fact = (Entry__id)obj;
 				_fieldSerializerByType[typeof(string)].WriteData(output, fact._value);
 			}
+
+            public CorrespondenceFact GetUnloadedInstance()
+            {
+                return Entry__id.GetUnloadedInstance();
+            }
+
+            public CorrespondenceFact GetNullInstance()
+            {
+                return Entry__id.GetNullInstance();
+            }
 		}
 
 		// Type
@@ -1387,25 +2058,79 @@ namespace FacetedWorlds.Ledger.Model
 			return _correspondenceFactType;
 		}
 
+        // Null and unloaded instances
+        public static Entry__id GetUnloadedInstance()
+        {
+            return new Entry__id((FactMemento)null) { IsLoaded = false };
+        }
+
+        public static Entry__id GetNullInstance()
+        {
+            return new Entry__id((FactMemento)null) { IsNull = true };
+        }
+
+        public Entry__id Ensure()
+        {
+            if (_loadedTask != null)
+            {
+                ManualResetEvent loaded = new ManualResetEvent(false);
+                Entry__id fact = null;
+                _loadedTask.ContinueWith(delegate(Task<CorrespondenceFact> t)
+                {
+                    fact = (Entry__id)t.Result;
+                    loaded.Set();
+                });
+                loaded.WaitOne();
+                return fact;
+            }
+            else
+                return this;
+        }
+
         // Roles
-        public static Role RoleEntry = new Role(new RoleMemento(
-			_correspondenceFactType,
-			"entry",
-			new CorrespondenceFactType("FacetedWorlds.Ledger.Model.Entry", 1),
-			false));
-        public static Role RolePrior = new Role(new RoleMemento(
-			_correspondenceFactType,
-			"prior",
-			new CorrespondenceFactType("FacetedWorlds.Ledger.Model.Entry__id", 1),
-			false));
+        private static Role _cacheRoleEntry;
+        public static Role GetRoleEntry()
+        {
+            if (_cacheRoleEntry == null)
+            {
+                _cacheRoleEntry = new Role(new RoleMemento(
+			        _correspondenceFactType,
+			        "entry",
+			        Entry._correspondenceFactType,
+			        false));
+            }
+            return _cacheRoleEntry;
+        }
+        private static Role _cacheRolePrior;
+        public static Role GetRolePrior()
+        {
+            if (_cacheRolePrior == null)
+            {
+                _cacheRolePrior = new Role(new RoleMemento(
+			        _correspondenceFactType,
+			        "prior",
+			        Entry__id._correspondenceFactType,
+			        false));
+            }
+            return _cacheRolePrior;
+        }
 
         // Queries
-        public static Query QueryIsCurrent = new Query()
-            .JoinSuccessors(Entry__id.RolePrior)
-            ;
+        private static Query _cacheQueryIsCurrent;
+
+        public static Query GetQueryIsCurrent()
+		{
+            if (_cacheQueryIsCurrent == null)
+            {
+			    _cacheQueryIsCurrent = new Query()
+		    		.JoinSuccessors(Entry__id.GetRolePrior())
+                ;
+            }
+            return _cacheQueryIsCurrent;
+		}
 
         // Predicates
-        public static Condition IsCurrent = Condition.WhereIsEmpty(QueryIsCurrent);
+        public static Condition IsCurrent = Condition.WhereIsEmpty(GetQueryIsCurrent());
 
         // Predecessors
         private PredecessorObj<Entry> _entry;
@@ -1424,8 +2149,8 @@ namespace FacetedWorlds.Ledger.Model
             )
         {
             InitializeResults();
-            _entry = new PredecessorObj<Entry>(this, RoleEntry, entry);
-            _prior = new PredecessorList<Entry__id>(this, RolePrior, prior);
+            _entry = new PredecessorObj<Entry>(this, GetRoleEntry(), entry);
+            _prior = new PredecessorList<Entry__id>(this, GetRolePrior(), prior);
             _value = value;
         }
 
@@ -1433,8 +2158,8 @@ namespace FacetedWorlds.Ledger.Model
         private Entry__id(FactMemento memento)
         {
             InitializeResults();
-            _entry = new PredecessorObj<Entry>(this, RoleEntry, memento);
-            _prior = new PredecessorList<Entry__id>(this, RolePrior, memento);
+            _entry = new PredecessorObj<Entry>(this, GetRoleEntry(), memento, Entry.GetUnloadedInstance, Entry.GetNullInstance);
+            _prior = new PredecessorList<Entry__id>(this, GetRolePrior(), memento, Entry__id.GetUnloadedInstance, Entry__id.GetNullInstance);
         }
 
         // Result initializer
@@ -1445,13 +2170,13 @@ namespace FacetedWorlds.Ledger.Model
         // Predecessor access
         public Entry Entry
         {
-            get { return _entry.Fact; }
+            get { return IsNull ? Entry.GetNullInstance() : _entry.Fact; }
         }
-        public IEnumerable<Entry__id> Prior
+        public PredecessorList<Entry__id> Prior
         {
             get { return _prior; }
         }
-     
+
         // Field access
         public string Value
         {
@@ -1497,6 +2222,16 @@ namespace FacetedWorlds.Ledger.Model
 				Entry__description fact = (Entry__description)obj;
 				_fieldSerializerByType[typeof(string)].WriteData(output, fact._value);
 			}
+
+            public CorrespondenceFact GetUnloadedInstance()
+            {
+                return Entry__description.GetUnloadedInstance();
+            }
+
+            public CorrespondenceFact GetNullInstance()
+            {
+                return Entry__description.GetNullInstance();
+            }
 		}
 
 		// Type
@@ -1508,25 +2243,79 @@ namespace FacetedWorlds.Ledger.Model
 			return _correspondenceFactType;
 		}
 
+        // Null and unloaded instances
+        public static Entry__description GetUnloadedInstance()
+        {
+            return new Entry__description((FactMemento)null) { IsLoaded = false };
+        }
+
+        public static Entry__description GetNullInstance()
+        {
+            return new Entry__description((FactMemento)null) { IsNull = true };
+        }
+
+        public Entry__description Ensure()
+        {
+            if (_loadedTask != null)
+            {
+                ManualResetEvent loaded = new ManualResetEvent(false);
+                Entry__description fact = null;
+                _loadedTask.ContinueWith(delegate(Task<CorrespondenceFact> t)
+                {
+                    fact = (Entry__description)t.Result;
+                    loaded.Set();
+                });
+                loaded.WaitOne();
+                return fact;
+            }
+            else
+                return this;
+        }
+
         // Roles
-        public static Role RoleEntry = new Role(new RoleMemento(
-			_correspondenceFactType,
-			"entry",
-			new CorrespondenceFactType("FacetedWorlds.Ledger.Model.Entry", 1),
-			false));
-        public static Role RolePrior = new Role(new RoleMemento(
-			_correspondenceFactType,
-			"prior",
-			new CorrespondenceFactType("FacetedWorlds.Ledger.Model.Entry__description", 1),
-			false));
+        private static Role _cacheRoleEntry;
+        public static Role GetRoleEntry()
+        {
+            if (_cacheRoleEntry == null)
+            {
+                _cacheRoleEntry = new Role(new RoleMemento(
+			        _correspondenceFactType,
+			        "entry",
+			        Entry._correspondenceFactType,
+			        false));
+            }
+            return _cacheRoleEntry;
+        }
+        private static Role _cacheRolePrior;
+        public static Role GetRolePrior()
+        {
+            if (_cacheRolePrior == null)
+            {
+                _cacheRolePrior = new Role(new RoleMemento(
+			        _correspondenceFactType,
+			        "prior",
+			        Entry__description._correspondenceFactType,
+			        false));
+            }
+            return _cacheRolePrior;
+        }
 
         // Queries
-        public static Query QueryIsCurrent = new Query()
-            .JoinSuccessors(Entry__description.RolePrior)
-            ;
+        private static Query _cacheQueryIsCurrent;
+
+        public static Query GetQueryIsCurrent()
+		{
+            if (_cacheQueryIsCurrent == null)
+            {
+			    _cacheQueryIsCurrent = new Query()
+		    		.JoinSuccessors(Entry__description.GetRolePrior())
+                ;
+            }
+            return _cacheQueryIsCurrent;
+		}
 
         // Predicates
-        public static Condition IsCurrent = Condition.WhereIsEmpty(QueryIsCurrent);
+        public static Condition IsCurrent = Condition.WhereIsEmpty(GetQueryIsCurrent());
 
         // Predecessors
         private PredecessorObj<Entry> _entry;
@@ -1545,8 +2334,8 @@ namespace FacetedWorlds.Ledger.Model
             )
         {
             InitializeResults();
-            _entry = new PredecessorObj<Entry>(this, RoleEntry, entry);
-            _prior = new PredecessorList<Entry__description>(this, RolePrior, prior);
+            _entry = new PredecessorObj<Entry>(this, GetRoleEntry(), entry);
+            _prior = new PredecessorList<Entry__description>(this, GetRolePrior(), prior);
             _value = value;
         }
 
@@ -1554,8 +2343,8 @@ namespace FacetedWorlds.Ledger.Model
         private Entry__description(FactMemento memento)
         {
             InitializeResults();
-            _entry = new PredecessorObj<Entry>(this, RoleEntry, memento);
-            _prior = new PredecessorList<Entry__description>(this, RolePrior, memento);
+            _entry = new PredecessorObj<Entry>(this, GetRoleEntry(), memento, Entry.GetUnloadedInstance, Entry.GetNullInstance);
+            _prior = new PredecessorList<Entry__description>(this, GetRolePrior(), memento, Entry__description.GetUnloadedInstance, Entry__description.GetNullInstance);
         }
 
         // Result initializer
@@ -1566,13 +2355,13 @@ namespace FacetedWorlds.Ledger.Model
         // Predecessor access
         public Entry Entry
         {
-            get { return _entry.Fact; }
+            get { return IsNull ? Entry.GetNullInstance() : _entry.Fact; }
         }
-        public IEnumerable<Entry__description> Prior
+        public PredecessorList<Entry__description> Prior
         {
             get { return _prior; }
         }
-     
+
         // Field access
         public string Value
         {
@@ -1607,6 +2396,7 @@ namespace FacetedWorlds.Ledger.Model
 					using (BinaryReader output = new BinaryReader(data))
 					{
 						newFact._voided = (DateTime)_fieldSerializerByType[typeof(DateTime)].ReadData(output);
+						newFact._voidedPadding = (byte)_fieldSerializerByType[typeof(byte)].ReadData(output);
 					}
 				}
 
@@ -1617,7 +2407,18 @@ namespace FacetedWorlds.Ledger.Model
 			{
 				EntryVoid fact = (EntryVoid)obj;
 				_fieldSerializerByType[typeof(DateTime)].WriteData(output, fact._voided);
+				_fieldSerializerByType[typeof(byte)].WriteData(output, fact._voidedPadding);
 			}
+
+            public CorrespondenceFact GetUnloadedInstance()
+            {
+                return EntryVoid.GetUnloadedInstance();
+            }
+
+            public CorrespondenceFact GetNullInstance()
+            {
+                return EntryVoid.GetNullInstance();
+            }
 		}
 
 		// Type
@@ -1629,12 +2430,49 @@ namespace FacetedWorlds.Ledger.Model
 			return _correspondenceFactType;
 		}
 
+        // Null and unloaded instances
+        public static EntryVoid GetUnloadedInstance()
+        {
+            return new EntryVoid((FactMemento)null) { IsLoaded = false };
+        }
+
+        public static EntryVoid GetNullInstance()
+        {
+            return new EntryVoid((FactMemento)null) { IsNull = true };
+        }
+
+        public EntryVoid Ensure()
+        {
+            if (_loadedTask != null)
+            {
+                ManualResetEvent loaded = new ManualResetEvent(false);
+                EntryVoid fact = null;
+                _loadedTask.ContinueWith(delegate(Task<CorrespondenceFact> t)
+                {
+                    fact = (EntryVoid)t.Result;
+                    loaded.Set();
+                });
+                loaded.WaitOne();
+                return fact;
+            }
+            else
+                return this;
+        }
+
         // Roles
-        public static Role RoleEntry = new Role(new RoleMemento(
-			_correspondenceFactType,
-			"entry",
-			new CorrespondenceFactType("FacetedWorlds.Ledger.Model.Entry", 1),
-			false));
+        private static Role _cacheRoleEntry;
+        public static Role GetRoleEntry()
+        {
+            if (_cacheRoleEntry == null)
+            {
+                _cacheRoleEntry = new Role(new RoleMemento(
+			        _correspondenceFactType,
+			        "entry",
+			        Entry._correspondenceFactType,
+			        false));
+            }
+            return _cacheRoleEntry;
+        }
 
         // Queries
 
@@ -1645,6 +2483,7 @@ namespace FacetedWorlds.Ledger.Model
 
         // Fields
         private DateTime _voided;
+        private byte _voidedPadding;
 
         // Results
 
@@ -1652,18 +2491,20 @@ namespace FacetedWorlds.Ledger.Model
         public EntryVoid(
             Entry entry
             ,DateTime voided
+            ,byte voidedPadding
             )
         {
             InitializeResults();
-            _entry = new PredecessorObj<Entry>(this, RoleEntry, entry);
+            _entry = new PredecessorObj<Entry>(this, GetRoleEntry(), entry);
             _voided = voided;
+            _voidedPadding = voidedPadding;
         }
 
         // Hydration constructor
         private EntryVoid(FactMemento memento)
         {
             InitializeResults();
-            _entry = new PredecessorObj<Entry>(this, RoleEntry, memento);
+            _entry = new PredecessorObj<Entry>(this, GetRoleEntry(), memento, Entry.GetUnloadedInstance, Entry.GetNullInstance);
         }
 
         // Result initializer
@@ -1674,13 +2515,17 @@ namespace FacetedWorlds.Ledger.Model
         // Predecessor access
         public Entry Entry
         {
-            get { return _entry.Fact; }
+            get { return IsNull ? Entry.GetNullInstance() : _entry.Fact; }
         }
 
         // Field access
         public DateTime Voided
         {
             get { return _voided; }
+        }
+        public byte VoidedPadding
+        {
+            get { return _voidedPadding; }
         }
 
         // Query result access
@@ -1700,14 +2545,14 @@ namespace FacetedWorlds.Ledger.Model
 				new FactMetadata(new List<CorrespondenceFactType> { Identity._correspondenceFactType }));
 			community.AddQuery(
 				Identity._correspondenceFactType,
-				Identity.QueryActiveShares.QueryDefinition);
+				Identity.GetQueryActiveShares().QueryDefinition);
 			community.AddType(
 				Share._correspondenceFactType,
 				new Share.CorrespondenceFactFactory(fieldSerializerByType),
 				new FactMetadata(new List<CorrespondenceFactType> { Share._correspondenceFactType }));
 			community.AddQuery(
 				Share._correspondenceFactType,
-				Share.QueryIsActive.QueryDefinition);
+				Share.GetQueryIsActive().QueryDefinition);
 			community.AddType(
 				ShareRevoke._correspondenceFactType,
 				new ShareRevoke.CorrespondenceFactFactory(fieldSerializerByType),
@@ -1718,17 +2563,17 @@ namespace FacetedWorlds.Ledger.Model
 				new FactMetadata(new List<CorrespondenceFactType> { Company._correspondenceFactType }));
 			community.AddQuery(
 				Company._correspondenceFactType,
-				Company.QueryName.QueryDefinition);
+				Company.GetQueryName().QueryDefinition);
 			community.AddQuery(
 				Company._correspondenceFactType,
-				Company.QueryAccounts.QueryDefinition);
+				Company.GetQueryAccounts().QueryDefinition);
 			community.AddType(
 				Company__name._correspondenceFactType,
 				new Company__name.CorrespondenceFactFactory(fieldSerializerByType),
 				new FactMetadata(new List<CorrespondenceFactType> { Company__name._correspondenceFactType }));
 			community.AddQuery(
 				Company__name._correspondenceFactType,
-				Company__name.QueryIsCurrent.QueryDefinition);
+				Company__name.GetQueryIsCurrent().QueryDefinition);
 			community.AddType(
 				Year._correspondenceFactType,
 				new Year.CorrespondenceFactFactory(fieldSerializerByType),
@@ -1739,17 +2584,17 @@ namespace FacetedWorlds.Ledger.Model
 				new FactMetadata(new List<CorrespondenceFactType> { Account._correspondenceFactType }));
 			community.AddQuery(
 				Account._correspondenceFactType,
-				Account.QueryName.QueryDefinition);
+				Account.GetQueryName().QueryDefinition);
 			community.AddQuery(
 				Account._correspondenceFactType,
-				Account.QueryIsDeleted.QueryDefinition);
+				Account.GetQueryIsDeleted().QueryDefinition);
 			community.AddType(
 				Account__name._correspondenceFactType,
 				new Account__name.CorrespondenceFactFactory(fieldSerializerByType),
 				new FactMetadata(new List<CorrespondenceFactType> { Account__name._correspondenceFactType }));
 			community.AddQuery(
 				Account__name._correspondenceFactType,
-				Account__name.QueryIsCurrent.QueryDefinition);
+				Account__name.GetQueryIsCurrent().QueryDefinition);
 			community.AddType(
 				AccountDelete._correspondenceFactType,
 				new AccountDelete.CorrespondenceFactFactory(fieldSerializerByType),
@@ -1760,37 +2605,37 @@ namespace FacetedWorlds.Ledger.Model
 				new FactMetadata(new List<CorrespondenceFactType> { Book._correspondenceFactType }));
 			community.AddQuery(
 				Book._correspondenceFactType,
-				Book.QueryCredits.QueryDefinition);
+				Book.GetQueryCredits().QueryDefinition);
 			community.AddQuery(
 				Book._correspondenceFactType,
-				Book.QueryDebits.QueryDefinition);
+				Book.GetQueryDebits().QueryDefinition);
 			community.AddType(
 				Entry._correspondenceFactType,
 				new Entry.CorrespondenceFactFactory(fieldSerializerByType),
 				new FactMetadata(new List<CorrespondenceFactType> { Entry._correspondenceFactType }));
 			community.AddQuery(
 				Entry._correspondenceFactType,
-				Entry.QueryId.QueryDefinition);
+				Entry.GetQueryId().QueryDefinition);
 			community.AddQuery(
 				Entry._correspondenceFactType,
-				Entry.QueryDescription.QueryDefinition);
+				Entry.GetQueryDescription().QueryDefinition);
 			community.AddQuery(
 				Entry._correspondenceFactType,
-				Entry.QueryIsVoided.QueryDefinition);
+				Entry.GetQueryIsVoided().QueryDefinition);
 			community.AddType(
 				Entry__id._correspondenceFactType,
 				new Entry__id.CorrespondenceFactFactory(fieldSerializerByType),
 				new FactMetadata(new List<CorrespondenceFactType> { Entry__id._correspondenceFactType }));
 			community.AddQuery(
 				Entry__id._correspondenceFactType,
-				Entry__id.QueryIsCurrent.QueryDefinition);
+				Entry__id.GetQueryIsCurrent().QueryDefinition);
 			community.AddType(
 				Entry__description._correspondenceFactType,
 				new Entry__description.CorrespondenceFactFactory(fieldSerializerByType),
 				new FactMetadata(new List<CorrespondenceFactType> { Entry__description._correspondenceFactType }));
 			community.AddQuery(
 				Entry__description._correspondenceFactType,
-				Entry__description.QueryIsCurrent.QueryDefinition);
+				Entry__description.GetQueryIsCurrent().QueryDefinition);
 			community.AddType(
 				EntryVoid._correspondenceFactType,
 				new EntryVoid.CorrespondenceFactFactory(fieldSerializerByType),

@@ -6,7 +6,7 @@ namespace FacetedWorlds.Ledger.Model
     {
         public void Void()
         {
-            Community.AddFact(new EntryVoid(this, DateTime.Now));
+            Community.AddFact(new EntryVoid(this, DateTime.Now, 0));
         }
     }
 }

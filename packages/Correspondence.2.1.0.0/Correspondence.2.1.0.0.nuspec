@@ -1,0 +1,19 @@
+<?xml version="1.0"?>
+<package xmlns="http://schemas.microsoft.com/packaging/2010/07/nuspec.xsd">
+  <metadata>
+    <id>Correspondence</id>
+    <version>2.1.0.0</version>
+    <authors>Michael L Perry</authors>
+    <owners>Michael L Perry</owners>
+    <licenseUrl>http://correspondence.codeplex.com/license</licenseUrl>
+    <projectUrl>http://correspondence.codeplex.com/</projectUrl>
+    <iconUrl>http://qedcode.com/images/logo32.png</iconUrl>
+    <requireLicenseAcceptance>false</requireLicenseAcceptance>
+    <description>Collaborative application framework.</description>
+    <language>en-US</language>
+    <tags>nosql database synchronize</tags>
+    <dependencies>
+      <dependency id="UpdateControls" version="2.2.2.0" />
+    </dependencies>
+  </metadata>
+</package>

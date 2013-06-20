@@ -1,0 +1,19 @@
+<?xml version="1.0"?>
+<package xmlns="http://schemas.microsoft.com/packaging/2010/07/nuspec.xsd">
+  <metadata>
+    <id>Correspondence.App</id>
+    <version>2.0.0.0</version>
+    <authors>Michael L Perry</authors>
+    <owners>Michael L Perry</owners>
+    <licenseUrl>http://correspondence.codeplex.com/license</licenseUrl>
+    <projectUrl>http://correspondence.codeplex.com/</projectUrl>
+    <iconUrl>http://qedcode.com/images/logo32.png</iconUrl>
+    <requireLicenseAcceptance>false</requireLicenseAcceptance>
+    <description>Correspondence collaboration application. Sets up file storage and HTTP synchronization.</description>
+    <language>en-US</language>
+    <tags>nosql database synchronize</tags>
+    <dependencies>
+      <dependency id="Correspondence" version="2.0.0.0" />
+    </dependencies>
+  </metadata>
+</package>

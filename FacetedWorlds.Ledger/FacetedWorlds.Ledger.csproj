@@ -61,8 +61,9 @@
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
   <ItemGroup>
-    <Reference Include="Itzben">
-      <HintPath>..\packages\itzben.1.0.1\lib\SL40\Itzben.dll</HintPath>
+    <Reference Include="Itzben, Version=1.0.3.0, Culture=neutral, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\packages\itzben.1.0.3\lib\SL40\Itzben.dll</HintPath>
     </Reference>
     <Reference Include="mscorlib" />
     <Reference Include="System.Windows" />
@@ -79,21 +80,27 @@
     </Reference>
     <Reference Include="System.Xml" />
     <Reference Include="System.Windows.Browser" />
-    <Reference Include="UpdateControls, Version=2.2.1.1, Culture=neutral, PublicKeyToken=19e83a8289e31a8f, processorArchitecture=MSIL">
-      <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\packages\UpdateControls.2.2.1.1\lib\sl5\UpdateControls.dll</HintPath>
+    <Reference Include="UpdateControls, Version=2.2.2.1, Culture=neutral, PublicKeyToken=19e83a8289e31a8f, processorArchitecture=MSIL">
+      <HintPath>..\packages\UpdateControls.2.2.5.0\lib\sl5\UpdateControls.dll</HintPath>
     </Reference>
-    <Reference Include="UpdateControls.Correspondence, Version=1.0.0.0, Culture=neutral, PublicKeyToken=19e83a8289e31a8f, processorArchitecture=MSIL">
+    <Reference Include="UpdateControls.Correspondence, Version=2.0.0.0, Culture=neutral, PublicKeyToken=19e83a8289e31a8f, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\packages\Correspondence.1.3.2.0\lib\SL5\UpdateControls.Correspondence.dll</HintPath>
+      <HintPath>..\packages\Correspondence.2.1.0.0\lib\SL5\UpdateControls.Correspondence.dll</HintPath>
     </Reference>
-    <Reference Include="UpdateControls.Correspondence.BinaryHTTPClient, Version=1.0.0.0, Culture=neutral, PublicKeyToken=19e83a8289e31a8f, processorArchitecture=MSIL">
+    <Reference Include="UpdateControls.Correspondence.BinaryHTTPClient, Version=2.0.0.0, Culture=neutral, PublicKeyToken=19e83a8289e31a8f, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\packages\Correspondence.Silverlight.App.1.3.2.0\lib\SL5\UpdateControls.Correspondence.BinaryHTTPClient.dll</HintPath>
+      <HintPath>..\packages\Correspondence.App.2.0.0.0\lib\SL5\UpdateControls.Correspondence.BinaryHTTPClient.dll</HintPath>
     </Reference>
-    <Reference Include="UpdateControls.Correspondence.IsolatedStorage, Version=1.0.0.0, Culture=neutral, PublicKeyToken=19e83a8289e31a8f, processorArchitecture=MSIL">
+    <Reference Include="UpdateControls.Correspondence.Data, Version=2.0.0.0, Culture=neutral, PublicKeyToken=19e83a8289e31a8f, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\packages\Correspondence.Silverlight.App.1.3.2.0\lib\SL5\UpdateControls.Correspondence.IsolatedStorage.dll</HintPath>
+      <HintPath>..\packages\Correspondence.App.2.0.0.0\lib\SL5\UpdateControls.Correspondence.Data.dll</HintPath>
+    </Reference>
+    <Reference Include="UpdateControls.Correspondence.IsolatedStorage, Version=2.0.0.0, Culture=neutral, PublicKeyToken=19e83a8289e31a8f, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\packages\Correspondence.App.2.0.0.0\lib\SL5\UpdateControls.Correspondence.IsolatedStorage.dll</HintPath>
+    </Reference>
+    <Reference Include="UpdateControls.Correspondence.Memory">
+      <HintPath>..\packages\Correspondence.App.2.0.0.0\lib\SL5\UpdateControls.Correspondence.Memory.dll</HintPath>
     </Reference>
   </ItemGroup>
   <ItemGroup>

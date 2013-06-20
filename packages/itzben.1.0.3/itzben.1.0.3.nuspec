@@ -1,0 +1,15 @@
+<?xml version="1.0"?>
+<package xmlns="http://schemas.microsoft.com/packaging/2010/07/nuspec.xsd">
+  <metadata>
+    <id>itzben</id>
+    <version>1.0.3</version>
+    <authors>Michael L Perry</authors>
+    <owners>Michael L Perry</owners>
+    <licenseUrl>http://itzben.codeplex.com/license</licenseUrl>
+    <projectUrl>http://itzben.codeplex.com/</projectUrl>
+    <requireLicenseAcceptance>false</requireLicenseAcceptance>
+    <description>A collection of universally useful XAML value converters, behaviors, and styles.</description>
+    <language>en-US</language>
+    <tags>xaml blend value-converter behavior style wpf silverlight wp7</tags>
+  </metadata>
+</package>
